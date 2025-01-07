@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:nopin_creative/core/constants/assets.dart';
-import 'package:nopin_creative/core/shared/widgets/custom_button.dart';
+import 'package:nopin_creative/core/constants/colors.dart';
 import 'package:nopin_creative/features/authentication/presentation/pages/sign_up.dart';
 
 class OnboardingScreen extends StatefulWidget {
@@ -49,76 +48,67 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: SafeArea(
-        child: Column(
-          children: [
-            Padding(
-              padding: const EdgeInsets.all(5.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  TextButton(
-                    onPressed: () {},
-                    child: Text(
-                      "Skip",
-                      style: GoogleFonts.plusJakartaSans(),
-                    ),
+        child: SingleChildScrollView(
+          child: Column(
+            children: [
+
+              SizedBox(
+                height: 600,
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 2),
+                  child: PageView(
+                    controller: pageController,
+                    children: OnboardingContent.data
+                        .map(
+                          (e) => OnboardingWidget(
+                            data: e,
+                          ),
+                        )
+                        .toList(),
                   ),
-                ],
-              ),
-            ),
-            SizedBox(
-              height: 600,
-              child: Padding(
-                padding: const EdgeInsets.symmetric(vertical: 2),
-                child: PageView(
-                  controller: pageController,
-                  children: OnboardingContent.data
-                      .map(
-                        (e) => OnboardingWidget(
-                          data: e,
-                        ),
-                      )
-                      .toList(),
                 ),
               ),
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: OnboardingContent.data.map((e) {
-                final isActive = OnboardingContent.data.indexOf(e) == active;
-                return AnimatedContainer(
-                  margin: const EdgeInsets.symmetric(horizontal: 5),
-                  duration: const Duration(milliseconds: 300),
-                  width: 5,
-                  height: 5,
-                  decoration: BoxDecoration(
-                    // shape: BoxShape.circle,
-                    borderRadius: BorderRadius.circular(16 * 2),
-                    color: isActive ? Colors.black : const Color(0XFFE2E8F0),
-                  ),
-                );
-              }).toList(),
-            ),
-            Padding(
-              padding: const EdgeInsets.symmetric(
-                  horizontal: 2.5 * 16, vertical: 10),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: CustomButton(
-                      onPressed: () {
-                        Navigator.of(context).pushReplacement(
-                          MaterialPageRoute(
-                            builder: (context) => const SignUpScreen(),
-                          ),
-                        );
-                      },
-                      text: "Comece agora",
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: OnboardingContent.data.map((e) {
+                  final isActive = OnboardingContent.data.indexOf(e) == active;
+                  return AnimatedContainer(
+                    margin: const EdgeInsets.symmetric(horizontal: 3),
+                    duration: const Duration(milliseconds: 300),
+                    width: 10,
+                    height: 10,
+                    decoration: BoxDecoration(
+                      // shape: BoxShape.circle,
+                      borderRadius: BorderRadius.circular(16 * 2),
+                      color: isActive ? Colors.black : const Color(0XFFE2E8F0),
                     ),
-                  ),
-                ],
+                  );
+                }).toList(),
               ),
-            )
+
+            ],
+          ),
+        ),
+      ),
+      bottomNavigationBar: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 3 * 8, vertical: 16),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Visibility(child: Text("Skip"), visible: active != OnboardingContent.data.length - 1,),
+            IconButton(onPressed: (){
+              Navigator.of(context).pushReplacement(
+                MaterialPageRoute(
+                  builder: (context) => const SignUpScreen(),
+                ),
+              );
+            }, icon:const  Icon(Icons.arrow_right_alt_rounded, color: Colors.white, size: 4 * 8,), style: IconButton.styleFrom(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(50)
+              ),
+              minimumSize: const Size(50, 50),
+              backgroundColor: AppColors.primary
+            ),)
           ],
         ),
       ),
@@ -139,31 +129,25 @@ class OnboardingWidget extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 2.5 * 16),
-              child: Image(
-                image: AssetImage(data["image"]!),
-                fit: BoxFit.contain, // Use BoxFit to control image scaling
+            SizedBox(
+              height: 410,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 2, vertical: 4 * 8),
+                child: Image(
+                  image: AssetImage(data["image"]!),
+                  fit: BoxFit.contain, // Use BoxFit to control image scaling
+                ),
               ),
             ),
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 4 * 16),
+              padding: const EdgeInsets.symmetric(horizontal: 4 * 10),
               child: Text(
                 data["title"]!,
                 style: const TextStyle(
-                    fontSize: 26, fontWeight: FontWeight.bold, height: 1.2),
+                    fontSize: 32, fontWeight: FontWeight.bold, height: 1.2),
                 textAlign: TextAlign.center,
               ),
             ),
-            Padding(
-              padding:
-                  const EdgeInsets.only(left: 3 * 16, right: 3 * 16, top: 14),
-              child: Text(
-                data["description"]!,
-                textAlign: TextAlign.center,
-                style: const TextStyle(color: Color(0XFF858585), fontSize: 16),
-              ),
-            )
           ],
         ),
       ),

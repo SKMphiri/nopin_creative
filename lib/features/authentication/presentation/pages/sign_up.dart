@@ -7,7 +7,7 @@ import 'package:nopin_creative/core/shared/widgets/custom_input.dart';
 import 'package:nopin_creative/features/authentication/presentation/widgets/o_auth.dart';
 
 class SignUpScreen extends StatefulWidget {
-  const SignUpScreen({super.key});
+  const  SignUpScreen({super.key});
 
   @override
   State<SignUpScreen> createState() => _SignUpScreenState();
@@ -52,7 +52,10 @@ class _SignUpScreenState extends State<SignUpScreen> {
                       onPressed: () {},
                       child: Text(
                         "Sign up",
-                        style: GoogleFonts.plusJakartaSans(color: Colors.black, fontSize: 18, fontWeight: FontWeight.w600),
+                        style: GoogleFonts.plusJakartaSans(
+                            color: Colors.black,
+                            fontSize: 18,
+                            fontWeight: FontWeight.w600),
                       ),
                     ),
                   ],
