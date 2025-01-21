@@ -1,10 +1,13 @@
+
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:nopin_creative/core/constants/assets.dart';
 import 'package:nopin_creative/core/constants/colors.dart';
 import 'package:nopin_creative/core/shared/widgets/custom_button.dart';
 import 'package:nopin_creative/core/shared/widgets/custom_input.dart';
-import 'package:nopin_creative/features/authentication/presentation/pages/sign_up.dart';
+import 'package:nopin_creative/features/authentication/presentation/views/sign_up.dart';
 import 'package:nopin_creative/features/authentication/presentation/widgets/o_auth.dart';
+import 'package:nopin_creative/features/home/presentation/views/offers.dart';
 
 class SignInScreen extends StatefulWidget {
   const SignInScreen({super.key});
@@ -40,19 +43,39 @@ class _SignUpScreenState extends State<SignInScreen> {
           child: Column(
             children: [
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20.0),
-                child: CustomInput(
-                  controller: _emailController,
-                  icon: AppIcons.email,
-                  label: "Email",
-                  placeholder: "Enter your name",
+                padding: const EdgeInsets.all(5.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    TextButton(
+                      onPressed: () {},
+                      child: Text(
+                        "Sign up",
+                        style: GoogleFonts.plusJakartaSans(
+                            color: Colors.black,
+                            fontSize: 18,
+                            fontWeight: FontWeight.w600),
+                      ),
+                    ),
+                  ],
                 ),
               ),
+              const SizedBox(height: 30,),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 20.0),
                 child: CustomInput(
                   controller: _emailController,
-                  icon: AppIcons.lock,
+                  iconUri: AppIcons.email,
+                  label: "Email",
+                  placeholder: "Enter your name",
+                ),
+              ),
+              const SizedBox(height: 20,),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                child: CustomInput(
+                  controller: _emailController,
+                  iconUri: AppIcons.lock,
                   label: "Password",
                   placeholder: "Enter your name",
                 ),
@@ -63,7 +86,10 @@ class _SignUpScreenState extends State<SignInScreen> {
                   child: Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 20.0),
                       child: CustomButton(
-                        onPressed: () {},
+                        onPressed: () {
+                          Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context)=> const OffersView()));
+                        },
+                        backgroundColor: Color(0XFF333333),
                         text: 'Sign Up',
                       )),
                 )
@@ -87,7 +113,7 @@ class _SignUpScreenState extends State<SignInScreen> {
                       Text(
                         "Sign up" ,
                         style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                            color: AppColors.primary),
+                            color: Colors.black, decoration: TextDecoration.underline),
                       )
                     ],
                   ),

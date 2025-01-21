@@ -1,3 +1,4 @@
+
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:nopin_creative/core/constants/colors.dart';
@@ -7,12 +8,14 @@ class CustomInput extends StatelessWidget {
       {super.key,
         this.label,
         this.placeholder,
-        this.icon,
+        this.iconUri,
+        this.iconSize = 14,
         required this.controller});
 
   final String? label;
   final String? placeholder;
-  final String? icon;
+  final String? iconUri;
+  final double? iconSize;
   final TextEditingController controller;
 
   @override
@@ -24,9 +27,9 @@ class CustomInput extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.symmetric(vertical: 8.0),
             child: Visibility(
-              visible: label != null,
+              visible: label == null,
               child: Text(
-                label!,
+                label != null ? label! : "",
                 style: GoogleFonts.plusJakartaSans(fontSize: 16, fontWeight: FontWeight.w500),
               ),
             ),
@@ -36,7 +39,9 @@ class CustomInput extends StatelessWidget {
             child: Container(
               color: Colors.grey.shade100,
               child: TextField(
+
                 decoration: InputDecoration(
+
                   border: OutlineInputBorder(
                       borderSide: const BorderSide(width: 1, color: Colors.transparent),
                       borderRadius: BorderRadius.circular(10)
@@ -56,16 +61,22 @@ class CustomInput extends StatelessWidget {
                       borderRadius: BorderRadius.circular(10)
                   ),
                   prefixIcon: Visibility(
-                    visible: icon != null,
+                    visible: iconUri != null,
                     child: Padding(
-                      padding: const EdgeInsets.all(14.0),
-                      child: Image(
-                        image: AssetImage(icon!),
-                        height: 10,
-                        width: 10,
+                      padding: EdgeInsets.all((1 / iconSize!) * 80),
+                      child: Visibility(
+                        visible: iconUri != null,
+                        replacement: SizedBox(),
+                        child: Image(
+                          image: AssetImage(iconUri!),
+                          height: iconSize,
+                          width: iconSize,
+                          fit: BoxFit.cover,
+                        ),
                       ),
                     ),
                   ),
+                  contentPadding: EdgeInsets.zero
                 ),
               ),
             ),

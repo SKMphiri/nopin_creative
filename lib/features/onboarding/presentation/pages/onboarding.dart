@@ -1,7 +1,8 @@
+
 import 'package:flutter/material.dart';
 import 'package:nopin_creative/core/constants/assets.dart';
 import 'package:nopin_creative/core/constants/colors.dart';
-import 'package:nopin_creative/features/authentication/presentation/pages/sign_up.dart';
+import 'package:nopin_creative/features/authentication/presentation/views/sign_in.dart';
 
 class OnboardingScreen extends StatefulWidget {
   const OnboardingScreen({super.key});
@@ -99,7 +100,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
             IconButton(onPressed: (){
               Navigator.of(context).pushReplacement(
                 MaterialPageRoute(
-                  builder: (context) => const SignUpScreen(),
+                  builder: (context) => const SignInScreen(),
                 ),
               );
             }, icon:const  Icon(Icons.arrow_right_alt_rounded, color: Colors.white, size: 4 * 8,), style: IconButton.styleFrom(

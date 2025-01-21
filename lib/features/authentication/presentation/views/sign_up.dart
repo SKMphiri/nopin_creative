@@ -1,9 +1,11 @@
+
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:nopin_creative/core/constants/assets.dart';
 import 'package:nopin_creative/core/constants/colors.dart';
 import 'package:nopin_creative/core/shared/widgets/custom_button.dart';
 import 'package:nopin_creative/core/shared/widgets/custom_input.dart';
+import 'package:nopin_creative/features/authentication/presentation/views/sign_in.dart';
 import 'package:nopin_creative/features/authentication/presentation/widgets/o_auth.dart';
 
 class SignUpScreen extends StatefulWidget {
@@ -65,7 +67,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 padding: const EdgeInsets.symmetric(horizontal: 20.0),
                 child: CustomInput(
                   controller: _emailController,
-                  icon: AppIcons.email,
+                  iconUri: AppIcons.email,
                   label: "Name",
                   placeholder: "Enter your name",
                 ),
@@ -74,7 +76,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 padding: const EdgeInsets.symmetric(horizontal: 20.0),
                 child: CustomInput(
                   controller: _emailController,
-                  icon: AppIcons.email,
+                  iconUri: AppIcons.email,
                   label: "Email",
                   placeholder: "Enter your email",
                 ),
@@ -83,7 +85,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 padding: const EdgeInsets.symmetric(horizontal: 20.0),
                 child: CustomInput(
                   controller: _emailController,
-                  icon: AppIcons.lock,
+                  iconUri: AppIcons.lock,
                   label: "Password",
                   placeholder: "Enter your password",
                 ),
@@ -110,7 +112,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                     horizontal: 16.0, vertical: 16 * 2),
                 child: GestureDetector(
                   onTap: () {
-                    // Navigator.of(context).push(MaterialPageRoute(builder: (context)=> const SignInScreen()));
+                    Navigator.of(context).push(MaterialPageRoute(builder: (context)=> const SignInScreen()));
                   },
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
