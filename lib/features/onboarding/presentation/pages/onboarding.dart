@@ -96,13 +96,20 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Visibility(child: Text("Skip"), visible: active != OnboardingContent.data.length - 1,),
-            IconButton(onPressed: (){
+            GestureDetector(onTap:(){
               Navigator.of(context).pushReplacement(
-                MaterialPageRoute(
-                  builder: (context) => const SignInScreen(),
-                ),
-              );
+                     MaterialPageRoute(
+                       builder: (context) => const SignInScreen(),
+                    ),
+                   );
+            }, child: Visibility(child: Text("Skip"), visible: active != OnboardingContent.data.length - 1,)),
+
+            IconButton(onPressed: (){
+              // Navigator.of(context).pushReplacement(
+              //   MaterialPageRoute(
+              //     builder: (context) => const SignInScreen(),
+              //   ),
+              // );
             }, icon:const  Icon(Icons.arrow_right_alt_rounded, color: Colors.white, size: 4 * 8,), style: IconButton.styleFrom(
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(50)

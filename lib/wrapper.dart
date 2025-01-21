@@ -1,6 +1,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:nopin_creative/features/home/presentation/views/offers.dart';
+import 'package:nopin_creative/features/onboarding/presentation/pages/onboarding.dart';
 
 class Wrapper extends StatefulWidget {
   const Wrapper({super.key});
@@ -19,7 +20,7 @@ class _WrapperState extends State<Wrapper> {
     });
   }
   void navigate(){
-    Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context)=> const OffersView()));
+    Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context)=> const OnboardingScreen()));
   }
   @override
   Widget build(BuildContext context) {

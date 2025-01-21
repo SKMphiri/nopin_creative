@@ -66,7 +66,8 @@ class _OffersViewState extends State<OffersView> {
         shadowColor: Colors.transparent,
         backgroundColor: Colors.white,
         surfaceTintColor: Colors.transparent,
-        title: Container(
+        leading: Container(
+          margin: EdgeInsets.only(left: 20),
           decoration: BoxDecoration(
               shape: BoxShape.circle,
               border: Border.fromBorderSide(
@@ -167,7 +168,7 @@ class _OffersViewState extends State<OffersView> {
                   spreadRadius: 1,
                   color: Colors.black12)
             ]),
-        height: kBottomNavigationBarHeight + 19,
+        height: kBottomNavigationBarHeight + 27,
         child: BottomNavigationBar(
           type: BottomNavigationBarType.fixed,
           backgroundColor: Colors.transparent,
