@@ -21,6 +21,7 @@ class AppIcons {
   static const String coinOne = 'assets/icons/coin1.png';
   static const String mpesa = 'assets/icons/mpesa.png';
   static const String emola = 'assets/icons/emola.png';
+
 }
 
 class AppImages {
@@ -31,7 +32,10 @@ class AppImages {
   static const String land = 'assets/images/land.png';
   static const String beachHouse = 'assets/images/beach_house.png';
   static const String trustBadge = 'assets/images/trust_badge.png';
-
+  static const String hexagon = 'assets/images/hexagon.png';
+  static const String quality = 'assets/images/quality.png';
+  static const String registered = 'assets/images/registered.png';
+  static const String goal = 'assets/images/goal.png';
 }
 
 class OnboardingContent {
