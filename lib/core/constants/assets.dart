@@ -17,6 +17,10 @@ class AppIcons {
   static const String heart = 'assets/icons/heart.png';
   static const String profile = 'assets/icons/profile.png';
   static const String notification = 'assets/icons/notification.png';
+  static const String warningTwo = 'assets/icons/warning2.png';
+  static const String coinOne = 'assets/icons/coin1.png';
+  static const String mpesa = 'assets/icons/mpesa.png';
+  static const String emola = 'assets/icons/emola.png';
 }
 
 class AppImages {

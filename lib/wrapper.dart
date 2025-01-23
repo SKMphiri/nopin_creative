@@ -1,5 +1,6 @@
 
 import 'package:flutter/material.dart';
+import 'package:nopin_creative/features/home/presentation/views/home.dart';
 import 'package:nopin_creative/features/home/presentation/views/offers.dart';
 import 'package:nopin_creative/features/onboarding/presentation/pages/onboarding.dart';
 
@@ -20,7 +21,7 @@ class _WrapperState extends State<Wrapper> {
     });
   }
   void navigate(){
-    Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context)=> const OnboardingScreen()));
+    Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context)=> const HomeScreen()));
   }
   @override
   Widget build(BuildContext context) {
