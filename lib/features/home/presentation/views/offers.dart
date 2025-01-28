@@ -7,6 +7,7 @@ import 'package:nopin_creative/core/constants/assets.dart';
 import 'package:nopin_creative/core/constants/colors.dart';
 import 'package:nopin_creative/core/shared/widgets/custom_input.dart';
 import 'package:nopin_creative/features/home/data/models/property.dart';
+import 'package:nopin_creative/features/home/presentation/views/offers_details.dart';
 
 class OffersView extends StatefulWidget {
   const OffersView({super.key});
@@ -202,164 +203,184 @@ class _OfferViewPropertyListState extends State<OfferViewPropertyList> {
           scrollDirection: Axis.horizontal,
           child: Row(
             children: widget.properties.map((element) {
-              return Container(
-                margin:
-                    EdgeInsets.only(left: 10, right: 10, bottom: 16, top: 5),
-                padding: EdgeInsets.only(bottom: 10, left: 4, right: 4, top: 4),
-                decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(12),
-                    boxShadow: [
-                      BoxShadow(
-                          offset: Offset(0, 4),
-                          blurRadius: 10,
-                          color: Colors.black12),
-                      BoxShadow(
-                          offset: Offset(0, 0),
-                          blurRadius: 0,
-                          spreadRadius: 0.5,
-                          color: Colors.black12)
-                    ]),
-                // height: 810,
-                constraints: BoxConstraints(minHeight: 230),
-                width: 220,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Stack(
-                      children: [
-                        ClipRRect(
-                          borderRadius: BorderRadius.circular(8),
-                          child: Image(
-                            image: AssetImage(
-                              element.type == PropertyType.land
-                                  ? AppImages.land
-                                  : AppImages.beachHouse,
-                            ),
-                            fit: BoxFit.fitWidth,
-                            height: 118,
-                            width: double.maxFinite,
-                          ),
-                        ),
-                        Visibility(
-                          visible: widget.onDemand,
-                          child: Positioned(
-                            left: 2,
-                            top: 10,
-                            child: const Image(
-                              image: AssetImage(AppImages.trustBadge),
-                              width: 40,
-
-                            ),
-                          ),
-                        ),
-                        StatefulBuilder(builder: (context, setState) {
-                          return Positioned(
-                            bottom: 12,
-                            right: 16,
-                            child: HeartCircleButton(
-                              isFavorite: isFavorite,
-                              onTap: () {
-                                setState(() {
-                                  isFavorite = !isFavorite;
-                                });
-                              },
-                            ),
-                          );
-                        }),
-                      ],
+              // TODO: NEW ELEMENT ADDED, BOTTOM MODAL SHEET
+              return  GestureDetector( onTap: (){
+                showModalBottomSheet(
+                  context: context,
+                  shape: const RoundedRectangleBorder(
+                    borderRadius: BorderRadius.only(
+                      topLeft: Radius.circular(30),
+                      topRight: Radius.circular(30),
                     ),
-                    Padding(
-                      padding: const EdgeInsets.only(top: 8, left: 8, right: 8),
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.center,
+                  ),
+                  builder: (context) {
+                    return OfferDetails(
+                      title: element.title,
+                      location: element.location,
+                      price: element.price.toDouble(), bedrooms: 1, bathrooms: 3, parking: true, description: 'lorem', assetImagePath: 'assets/images/beach_house.png',
+                    );
+                  },
+                );
+              },
+                child: Container(
+                  margin:
+                      EdgeInsets.only(left: 10, right: 10, bottom: 16, top: 5),
+                  padding: EdgeInsets.only(bottom: 10, left: 4, right: 4, top: 4),
+                  decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(12),
+                      boxShadow: [
+                        BoxShadow(
+                            offset: Offset(0, 4),
+                            blurRadius: 10,
+                            color: Colors.black12),
+                        BoxShadow(
+                            offset: Offset(0, 0),
+                            blurRadius: 0,
+                            spreadRadius: 0.5,
+                            color: Colors.black12)
+                      ]),
+                  // height: 810,
+                  constraints: BoxConstraints(minHeight: 230),
+                  width: 220,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Stack(
                         children: [
-                          Container(
-                            width: 7,
-                            height: 7,
-                            decoration: BoxDecoration(
-                                shape: BoxShape.circle, color: Colors.green),
+                          ClipRRect(
+                            borderRadius: BorderRadius.circular(8),
+                            child: Image(
+                              image: AssetImage(
+                                element.type == PropertyType.land
+                                    ? AppImages.land
+                                    : AppImages.beachHouse,
+                              ),
+                              fit: BoxFit.fitWidth,
+                              height: 118,
+                              width: double.maxFinite,
+                            ),
                           ),
-                          const SizedBox(
-                            width: 2,
+                          Visibility(
+                            visible: widget.onDemand,
+                            child: Positioned(
+                              left: 2,
+                              top: 10,
+                              child: const Image(
+                                image: AssetImage(AppImages.trustBadge),
+                                width: 40,
+
+                              ),
+                            ),
                           ),
-                          Text(
-                            element.type == PropertyType.rent
-                                ? "Arrenda-se"
-                                : "Terreno",
-                            style: TextStyle(fontSize: 8),
-                          ),
+                          StatefulBuilder(builder: (context, setState) {
+                            return Positioned(
+                              bottom: 12,
+                              right: 16,
+                              child: HeartCircleButton(
+                                isFavorite: isFavorite,
+                                onTap: () {
+                                  setState(() {
+                                    isFavorite = !isFavorite;
+                                  });
+                                },
+                              ),
+                            );
+                          }),
                         ],
                       ),
-                    ),
-                    const SizedBox(
-                      height: 4,
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.only(left: 8, right: 8),
-                      child: RichText(
-                          text: TextSpan(children: [
-                        TextSpan(
-                            text: "MZN 125.000.00",
-                            style: TextStyle(
-                                color: Colors.black,
-                                fontSize: 14,
-                                fontWeight: FontWeight.bold)),
-                        TextSpan(
-                            text: "/mês",
-                            style: TextStyle(
-                                color: Colors.black,
-                                fontSize: 10,
-                                fontWeight: FontWeight.bold)),
-                      ])),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.only(left: 8, right: 8),
-                      child: Text(element.title,
-                          style: TextStyle(
-                            color: Colors.black,
-                            fontSize: 10,
-                          )),
-                    ),
-                    const SizedBox(
-                      height: 4,
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.only(left: 8, right: 8),
-                      child: Row(
-                        children: [
-                          Icon(
-                            Icons.location_on_rounded,
-                            size: 8,
-                          ),
-                          Text(
-                            element.location,
+                      Padding(
+                        padding: const EdgeInsets.only(top: 8, left: 8, right: 8),
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            Container(
+                              width: 7,
+                              height: 7,
+                              decoration: BoxDecoration(
+                                  shape: BoxShape.circle, color: Colors.green),
+                            ),
+                            const SizedBox(
+                              width: 2,
+                            ),
+                            Text(
+                              element.type == PropertyType.rent
+                                  ? "Arrenda-se"
+                                  : "Terreno",
+                              style: TextStyle(fontSize: 8),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(
+                        height: 4,
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.only(left: 8, right: 8),
+                        child: RichText(
+                            text: TextSpan(children: [
+                          TextSpan(
+                              text: "MZN 125.000.00",
+                              style: TextStyle(
+                                  color: Colors.black,
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.bold)),
+                          TextSpan(
+                              text: "/mês",
+                              style: TextStyle(
+                                  color: Colors.black,
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.bold)),
+                        ])),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.only(left: 8, right: 8),
+                        child: Text(element.title,
                             style: TextStyle(
                               color: Colors.black,
-                              fontSize: 8,
+                              fontSize: 10,
+                            )),
+                      ),
+                      const SizedBox(
+                        height: 4,
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.only(left: 8, right: 8),
+                        child: Row(
+                          children: [
+                            Icon(
+                              Icons.location_on_rounded,
+                              size: 8,
                             ),
-                          )
-                        ],
+                            Text(
+                              element.location,
+                              style: TextStyle(
+                                color: Colors.black,
+                                fontSize: 8,
+                              ),
+                            )
+                          ],
+                        ),
                       ),
-                    ),
-                    const SizedBox(
-                      height: 6,
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.only(left: 8, right: 8),
-                      child: Wrap(
-                        direction: Axis.horizontal,
-                        spacing: 5,
-                        runSpacing: 5.0,
-                        crossAxisAlignment: WrapCrossAlignment.center,
-                        children: element.attributes.entries.map(
-                          (el) {
-                            return renderPropertyAttribute(el);
-                          },
-                        ).toList(),
+                      const SizedBox(
+                        height: 6,
                       ),
-                    )
-                  ],
+                      Padding(
+                        padding: const EdgeInsets.only(left: 8, right: 8),
+                        child: Wrap(
+                          direction: Axis.horizontal,
+                          spacing: 5,
+                          runSpacing: 5.0,
+                          crossAxisAlignment: WrapCrossAlignment.center,
+                          children: element.attributes.entries.map(
+                            (el) {
+                              return renderPropertyAttribute(el);
+                            },
+                          ).toList(),
+                        ),
+                      )
+                    ],
+                  ),
                 ),
               );
             }).toList(),
