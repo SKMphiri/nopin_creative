@@ -66,7 +66,7 @@ class CustomInput extends StatelessWidget {
                       padding: EdgeInsets.all((1 / iconSize!) * 80),
                       child: Visibility(
                         visible: iconUri != null,
-                        replacement: SizedBox(),
+                        replacement: const SizedBox(),
                         child: Image(
                           image: AssetImage(iconUri!),
                           height: iconSize,

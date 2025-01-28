@@ -26,7 +26,7 @@ class _HomeScreenState extends State<HomeScreen> {
         children: homeScreens,
       ),
       bottomNavigationBar: Container(
-        decoration: BoxDecoration(
+        decoration: const BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.only(
                 topLeft: Radius.circular(9), topRight: Radius.circular(9)),
@@ -41,8 +41,8 @@ class _HomeScreenState extends State<HomeScreen> {
         child: BottomNavigationBar(
           type: BottomNavigationBarType.fixed,
           backgroundColor: Colors.transparent,
-          selectedLabelStyle: TextStyle(fontSize: 10),
-          unselectedLabelStyle: TextStyle(fontSize: 10),
+          selectedLabelStyle: const TextStyle(fontSize: 10),
+          unselectedLabelStyle: const TextStyle(fontSize: 10),
           selectedItemColor: AppColors.primary,
           unselectedItemColor: Colors.black87,
           showUnselectedLabels: true,
@@ -52,7 +52,7 @@ class _HomeScreenState extends State<HomeScreen> {
             print("$index");
             controller.animateToPage(index, duration: const Duration(milliseconds: 300), curve: Curves.ease);
           },
-          items: [
+          items: const [
             // BottomNavigationBarItem(
             //   icon: Icon(Icons.search),
             //   label: "Explorar",

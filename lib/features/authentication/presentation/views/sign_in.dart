@@ -89,7 +89,7 @@ class _SignUpScreenState extends State<SignInScreen> {
                         onPressed: () {
                           Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context)=> const OffersView()));
                         },
-                        backgroundColor: Color(0XFF333333),
+                        backgroundColor: const Color(0XFF333333),
                         text: 'Sign Up',
                       )),
                 )

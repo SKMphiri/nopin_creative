@@ -1,8 +1,6 @@
 
 import 'package:flutter/material.dart';
 import 'package:nopin_creative/features/home/presentation/views/home.dart';
-import 'package:nopin_creative/features/home/presentation/views/offers.dart';
-import 'package:nopin_creative/features/onboarding/presentation/pages/onboarding.dart';
 
 class Wrapper extends StatefulWidget {
   const Wrapper({super.key});

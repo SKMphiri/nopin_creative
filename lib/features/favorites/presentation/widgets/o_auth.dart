@@ -24,7 +24,7 @@ class OAuth extends StatelessWidget {
                 Container(
                   padding: const EdgeInsets.all(8.0),
                   color: Colors.white,
-                  child: Text("Or"),
+                  child: const Text("Or"),
                 )
               ],
             ),

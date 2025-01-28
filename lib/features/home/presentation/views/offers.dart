@@ -26,13 +26,12 @@ class _OffersViewState extends State<OffersView> {
     // TODO: implement initState
     super.initState();
     searchController = TextEditingController();
-    ;
   }
 
   final quickOptions = const ["Arrendar", "Comprar", "Terreno", "Casas"];
 
   final List<Property> properties = [
-    Property(
+    const Property(
         id: "0",
         price: 125000,
         title: "Casa Moderna para Arrendar, T3",
@@ -45,7 +44,7 @@ class _OffersViewState extends State<OffersView> {
           PropertyAttributeType.parking: 1
         },
         active: true),
-    Property(
+    const Property(
         id: "0",
         price: 125000,
         title: "Terreno de 2 hectares",
@@ -68,12 +67,12 @@ class _OffersViewState extends State<OffersView> {
         backgroundColor: Colors.white,
         surfaceTintColor: Colors.transparent,
         leading: Container(
-          margin: EdgeInsets.only(left: 20),
+          margin: const EdgeInsets.only(left: 20),
           decoration: BoxDecoration(
               shape: BoxShape.circle,
               border: Border.fromBorderSide(
                   BorderSide(width: 1, color: AppColors.primary))),
-          child: CircleAvatar(
+          child: const CircleAvatar(
             backgroundColor: Color(0XFFD9D9D9),
             radius: 25,
             child: Text(
@@ -82,9 +81,9 @@ class _OffersViewState extends State<OffersView> {
             ),
           ),
         ),
-        actions: [
+        actions: const [
           Padding(
-            padding: const EdgeInsets.all(20),
+            padding: EdgeInsets.all(20),
             child: Image(image: AssetImage(AppIcons.notification)),
           )
         ],
@@ -98,7 +97,7 @@ class _OffersViewState extends State<OffersView> {
             children: [
               Text(
                 welcomeMessage,
-                style: TextStyle(fontSize: 24),
+                style: const TextStyle(fontSize: 24),
               ),
               CustomInput(
                 controller: searchController,
@@ -112,12 +111,12 @@ class _OffersViewState extends State<OffersView> {
               //Quick options
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: quickOptions.map((_element) {
+                children: quickOptions.map((element) {
                   return Container(
                     height: 75,
                     width: 75,
                     decoration: BoxDecoration(
-                        boxShadow: [
+                        boxShadow: const [
                           BoxShadow(
                               offset: Offset(0, 4),
                               blurRadius: 10,
@@ -128,11 +127,11 @@ class _OffersViewState extends State<OffersView> {
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Image(
+                        const Image(
                           image: AssetImage(AppIcons.rent),
                           width: 30,
                         ),
-                        Text(_element),
+                        Text(element),
                       ],
                     ),
                   );
@@ -186,14 +185,14 @@ class _OfferViewPropertyListState extends State<OfferViewPropertyList> {
           children: [
             Text(
               widget.title,
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
             ),
             const Spacer(),
-            Text(
+            const Text(
               "Ver todos",
               style: TextStyle(fontSize: 14),
             ),
-            Icon(Icons.chevron_right)
+            const Icon(Icons.chevron_right)
           ],
         ),
         const SizedBox(
@@ -206,6 +205,7 @@ class _OfferViewPropertyListState extends State<OfferViewPropertyList> {
               // TODO: NEW ELEMENT ADDED, BOTTOM MODAL SHEET
               return  GestureDetector( onTap: (){
                 showModalBottomSheet(
+                   isScrollControlled: true,
                   context: context,
                   shape: const RoundedRectangleBorder(
                     borderRadius: BorderRadius.only(
@@ -224,12 +224,12 @@ class _OfferViewPropertyListState extends State<OfferViewPropertyList> {
               },
                 child: Container(
                   margin:
-                      EdgeInsets.only(left: 10, right: 10, bottom: 16, top: 5),
-                  padding: EdgeInsets.only(bottom: 10, left: 4, right: 4, top: 4),
+                      const EdgeInsets.only(left: 10, right: 10, bottom: 16, top: 5),
+                  padding: const EdgeInsets.only(bottom: 10, left: 4, right: 4, top: 4),
                   decoration: BoxDecoration(
                       color: Colors.white,
                       borderRadius: BorderRadius.circular(12),
-                      boxShadow: [
+                      boxShadow: const [
                         BoxShadow(
                             offset: Offset(0, 4),
                             blurRadius: 10,
@@ -241,7 +241,7 @@ class _OfferViewPropertyListState extends State<OfferViewPropertyList> {
                             color: Colors.black12)
                       ]),
                   // height: 810,
-                  constraints: BoxConstraints(minHeight: 230),
+                  constraints: const BoxConstraints(minHeight: 230),
                   width: 220,
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -263,10 +263,10 @@ class _OfferViewPropertyListState extends State<OfferViewPropertyList> {
                           ),
                           Visibility(
                             visible: widget.onDemand,
-                            child: Positioned(
+                            child: const Positioned(
                               left: 2,
                               top: 10,
-                              child: const Image(
+                              child: Image(
                                 image: AssetImage(AppImages.trustBadge),
                                 width: 40,
 
@@ -297,7 +297,7 @@ class _OfferViewPropertyListState extends State<OfferViewPropertyList> {
                             Container(
                               width: 7,
                               height: 7,
-                              decoration: BoxDecoration(
+                              decoration: const BoxDecoration(
                                   shape: BoxShape.circle, color: Colors.green),
                             ),
                             const SizedBox(
@@ -307,7 +307,7 @@ class _OfferViewPropertyListState extends State<OfferViewPropertyList> {
                               element.type == PropertyType.rent
                                   ? "Arrenda-se"
                                   : "Terreno",
-                              style: TextStyle(fontSize: 8),
+                              style: const TextStyle(fontSize: 8),
                             ),
                           ],
                         ),
@@ -318,7 +318,7 @@ class _OfferViewPropertyListState extends State<OfferViewPropertyList> {
                       Padding(
                         padding: const EdgeInsets.only(left: 8, right: 8),
                         child: RichText(
-                            text: TextSpan(children: [
+                            text: const TextSpan(children: [
                           TextSpan(
                               text: "MZN 125.000.00",
                               style: TextStyle(
@@ -336,7 +336,7 @@ class _OfferViewPropertyListState extends State<OfferViewPropertyList> {
                       Padding(
                         padding: const EdgeInsets.only(left: 8, right: 8),
                         child: Text(element.title,
-                            style: TextStyle(
+                            style: const TextStyle(
                               color: Colors.black,
                               fontSize: 10,
                             )),
@@ -348,13 +348,13 @@ class _OfferViewPropertyListState extends State<OfferViewPropertyList> {
                         padding: const EdgeInsets.only(left: 8, right: 8),
                         child: Row(
                           children: [
-                            Icon(
+                            const Icon(
                               Icons.location_on_rounded,
                               size: 8,
                             ),
                             Text(
                               element.location,
-                              style: TextStyle(
+                              style: const TextStyle(
                                 color: Colors.black,
                                 fontSize: 8,
                               ),
@@ -428,7 +428,7 @@ class _OfferViewPropertyListState extends State<OfferViewPropertyList> {
         ),
         Text(
           description,
-          style: TextStyle(fontSize: 8),
+          style: const TextStyle(fontSize: 8),
         )
       ],
     );
@@ -563,10 +563,10 @@ class HeartCircleButton extends StatelessWidget {
   final VoidCallback onTap;
 
   const HeartCircleButton({
-    Key? key,
+    super.key,
     required this.isFavorite,
     required this.onTap,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

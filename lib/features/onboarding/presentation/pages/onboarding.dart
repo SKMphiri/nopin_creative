@@ -102,7 +102,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                        builder: (context) => const SignInScreen(),
                     ),
                    );
-            }, child: Visibility(child: Text("Skip"), visible: active != OnboardingContent.data.length - 1,)),
+            }, child: Visibility(visible: active != OnboardingContent.data.length - 1,child: Text("Skip"),)),
 
             IconButton(onPressed: (){
               // Navigator.of(context).pushReplacement(
