@@ -1,7 +1,8 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:nopin_creative/core/constants/colors.dart';
-import 'package:nopin_creative/features/chat/presentation/pages/chat.dart';
+import 'package:nopin_creative/features/chat/presentation/views/chat.dart';
+import 'package:nopin_creative/features/explore/presentation/views/explore.dart';
 import 'package:nopin_creative/features/favorites/presentation/views/favorite.dart';
 import 'package:nopin_creative/features/home/presentation/views/offers.dart';
 import 'package:nopin_creative/features/profile/presentation/pages/profile.dart';
@@ -14,9 +15,23 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  PageController controller = PageController(initialPage: 0);
+  late PageController controller;
 
-  List<Widget> homeScreens = const [OffersView(), ChatView(), FavoriteView(), ProfileView()];
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+
+    controller = PageController(initialPage: 0);
+    controller.addListener((){
+      setState(() {
+        currentIndex = controller.page!.toInt();
+      });
+    });
+  }
+
+
+  List<Widget> homeScreens = const [ExploreView(),  ChatView(), OffersView(),FavoriteView(), ProfileView()];
   int currentIndex = 0;
   @override
   Widget build(BuildContext context) {
@@ -53,10 +68,10 @@ class _HomeScreenState extends State<HomeScreen> {
             controller.animateToPage(index, duration: const Duration(milliseconds: 300), curve: Curves.ease);
           },
           items: const [
-            // BottomNavigationBarItem(
-            //   icon: Icon(Icons.search),
-            //   label: "Explorar",
-            // ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.search),
+              label: "Explorar",
+            ),
             BottomNavigationBarItem(
                 icon: Icon(CupertinoIcons.chat_bubble), label: "Mensagem"),
             BottomNavigationBarItem(
