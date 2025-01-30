@@ -28,34 +28,7 @@ class _OffersViewState extends State<OffersView> {
     searchController = TextEditingController();
   }
 
-  final quickOptions = const ["Arrendar", "Comprar", "Terreno", "Casas"];
 
-  final List<Property> properties = [
-    const Property(
-        id: "0",
-        price: 125000,
-        title: "Casa Moderna para Arrendar, T3",
-        location: "Belo Horizonte, Maputo",
-        type: PropertyType.rent,
-        attributes: {
-          PropertyAttributeType.room: 4,
-          PropertyAttributeType.wc: 4,
-          PropertyAttributeType.pool: 1,
-          PropertyAttributeType.parking: 1
-        },
-        active: true),
-    const Property(
-        id: "0",
-        price: 125000,
-        title: "Terreno de 2 hectares",
-        location: "Belo Horizonte, Maputo",
-        type: PropertyType.land,
-        attributes: {
-          PropertyAttributeType.width: 50,
-          PropertyAttributeType.length: 20
-        },
-        active: true),
-  ];
 
   @override
   Widget build(BuildContext context) {

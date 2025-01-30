@@ -21,6 +21,7 @@ class AppIcons {
   static const String coinOne = 'assets/icons/coin1.png';
   static const String mpesa = 'assets/icons/mpesa.png';
   static const String emola = 'assets/icons/emola.png';
+  static const String userTwo = 'assets/icons/user_two.png';
 
 }
 

@@ -26,3 +26,32 @@ class Property extends Equatable {
   // TODO: implement props
   List<Object?> get props => [id];
 }
+
+const quickOptions = ["Arrendar", "Comprar", "Terreno", "Casas"];
+
+final List<Property> properties = [
+  const Property(
+      id: "0",
+      price: 125000,
+      title: "Casa Moderna para Arrendar, T3",
+      location: "Belo Horizonte, Maputo",
+      type: PropertyType.rent,
+      attributes: {
+        PropertyAttributeType.room: 4,
+        PropertyAttributeType.wc: 4,
+        PropertyAttributeType.pool: 1,
+        PropertyAttributeType.parking: 1
+      },
+      active: true),
+  const Property(
+      id: "0",
+      price: 125000,
+      title: "Terreno de 2 hectares",
+      location: "Belo Horizonte, Maputo",
+      type: PropertyType.land,
+      attributes: {
+        PropertyAttributeType.width: 50,
+        PropertyAttributeType.length: 20
+      },
+      active: true),
+];
