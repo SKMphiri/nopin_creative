@@ -22,6 +22,7 @@ class AppIcons {
   static const String mpesa = 'assets/icons/mpesa.png';
   static const String emola = 'assets/icons/emola.png';
   static const String userTwo = 'assets/icons/user_two.png';
+  static const String phoneCall = 'assets/icons/phone_call.png';
 
 }
 

@@ -18,7 +18,7 @@ class Message {
 
 final List<Chat> dummyChats = [
   Chat(
-    users: ["user_1", "user_2"],
+    users: ["user_2", "user_1"],
     fromProperty: properties[0], // Referring to the first property in your list
     messages: [
       Message(
@@ -39,16 +39,16 @@ final List<Chat> dummyChats = [
     ],
   ),
   Chat(
-    users: ["user_3", "user_4"],
+    users: ["user_3", "user_1"],
     fromProperty: properties[1], // Referring to the second property in your list
     messages: [
       Message(
-        from: "user_3",
+        from: "user_1",
         body: "Oi, o terreno ainda está à venda?",
         time: DateTime.now().subtract(Duration(hours: 1)),
       ),
       Message(
-        from: "user_4",
+        from: "user_3",
         body: "Sim, está. Posso fornecer mais detalhes se precisar.",
         time: DateTime.now().subtract(Duration(minutes: 50)),
       ),

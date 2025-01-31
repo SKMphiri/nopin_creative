@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:nopin_creative/core/constants/assets.dart';
 import 'package:nopin_creative/features/chat/data/models/chat.dart';
-import 'package:nopin_creative/features/chat/data/models/messages.dart';
+import 'package:nopin_creative/features/chat/presentation/views/messages.dart';
 import 'package:timeago/timeago.dart' as timeago;
 
 class ChatView extends StatelessWidget {

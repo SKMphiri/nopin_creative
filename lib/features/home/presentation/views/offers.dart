@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:nopin_creative/core/constants/assets.dart';
 import 'package:nopin_creative/core/constants/colors.dart';
 import 'package:nopin_creative/core/shared/widgets/custom_input.dart';
+import 'package:nopin_creative/core/shared/widgets/property_attribure.dart';
 import 'package:nopin_creative/features/home/data/models/property.dart';
 import 'package:nopin_creative/features/home/presentation/views/offers_details.dart';
 
@@ -38,8 +39,7 @@ class _OffersViewState extends State<OffersView> {
         elevation: 0,
         shadowColor: Colors.transparent,
         backgroundColor: Colors.white,
-        surfaceTintColor: Colors.transparent,
-        leading: Container(
+         leading: Container(
           margin: const EdgeInsets.only(left: 20),
           decoration: BoxDecoration(
               shape: BoxShape.circle,
@@ -363,49 +363,7 @@ class _OfferViewPropertyListState extends State<OfferViewPropertyList> {
     );
   }
 //TODO: Scroll effect
-  Widget renderPropertyAttribute(
-      MapEntry<PropertyAttributeType, int> attribute) {
-    String imageUri = "";
-    String description = "";
-    if (attribute.key == PropertyAttributeType.room) {
-      imageUri = AppIcons.bed;
-      description = "${attribute.value} Quartos";
-    } else if (attribute.key == PropertyAttributeType.wc) {
-      imageUri = AppIcons.spa;
-      description = "${attribute.value} Casa de banho";
-    } else if (attribute.key == PropertyAttributeType.pool) {
-      imageUri = AppIcons.pool;
-      description = "${attribute.value} Piscina";
-    } else if (attribute.key == PropertyAttributeType.parking) {
-      imageUri = AppIcons.car;
-      description = "${attribute.value} Estacionamento";
-    } else if (attribute.key == PropertyAttributeType.width) {
-      imageUri = AppIcons.width;
-      description = "${attribute.value}M";
-    } else if (attribute.key == PropertyAttributeType.length) {
-      imageUri = AppIcons.length;
-      description = "${attribute.value}M";
-    }
 
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
-        Image(
-          image: AssetImage(imageUri),
-          width: 12,
-          height: 12,
-        ),
-        const SizedBox(
-          width: 2,
-        ),
-        Text(
-          description,
-          style: const TextStyle(fontSize: 8),
-        )
-      ],
-    );
-  }
 }
 
 class HeartCirclePainter extends CustomPainter {
