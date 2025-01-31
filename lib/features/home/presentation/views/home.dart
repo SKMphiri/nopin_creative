@@ -19,20 +19,41 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
-
     controller = PageController(initialPage: 0);
-    controller.addListener((){
+    controller.addListener(() {
       setState(() {
         currentIndex = controller.page!.toInt();
       });
     });
   }
 
-
-  List<Widget> homeScreens = const [ExploreView(),  ChatView(), OffersView(),FavoriteView(), ProfileView()];
+  List<Widget> homeScreens = const [
+    // ExploreView(),
+    OffersView(),
+    ChatView(),
+    FavoriteView(),
+    ProfileView()
+  ];
   int currentIndex = 0;
+
+  void _onFabPressed() {
+    // Handle FAB press
+    showModalBottomSheet(
+      isScrollControlled: true,
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.only(
+          topLeft: Radius.circular(30),
+          topRight: Radius.circular(30),
+        ),
+      ),
+      builder: (context) {
+        return Container();
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -40,46 +61,63 @@ class _HomeScreenState extends State<HomeScreen> {
         controller: controller,
         children: homeScreens,
       ),
-      bottomNavigationBar: Container(
-        decoration: const BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.only(
-                topLeft: Radius.circular(9), topRight: Radius.circular(9)),
-            boxShadow: [
-              BoxShadow(
-                  offset: Offset(0, -2),
-                  blurRadius: 2,
-                  spreadRadius: 1,
-                  color: Colors.black12)
-            ]),
-        height: kBottomNavigationBarHeight + 27,
-        child: BottomNavigationBar(
-          type: BottomNavigationBarType.fixed,
-          backgroundColor: Colors.transparent,
-          selectedLabelStyle: const TextStyle(fontSize: 10),
-          unselectedLabelStyle: const TextStyle(fontSize: 10),
-          selectedItemColor: AppColors.primary,
-          unselectedItemColor: Colors.black87,
-          showUnselectedLabels: true,
-          elevation: 0,
-          currentIndex: currentIndex,
-          onTap: (index){
-            print("$index");
-            controller.animateToPage(index, duration: const Duration(milliseconds: 300), curve: Curves.ease);
-          },
-          items: const [
-            BottomNavigationBarItem(
-              icon: Icon(Icons.search),
-              label: "Explorar",
+      floatingActionButton: FloatingActionButton(
+        onPressed: _onFabPressed,
+        backgroundColor: AppColors.primary,
+        elevation: 4,
+        child: const Icon(
+          Icons.add,
+          color: Colors.white,
+          size: 30,
+        ),
+      ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+      bottomNavigationBar: BottomAppBar(
+        shape: const CircularNotchedRectangle(),
+        notchMargin: 8,
+        child: Container(
+          height: kBottomNavigationBarHeight + 20,
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              _buildNavItem(
+                 CupertinoIcons.house_alt,  "Ofertas", 0),
+              // _buildNavItem(Icons.search, "Explorar", 0),
+              _buildNavItem(CupertinoIcons.chat_bubble, "Mensagem", 1),
+              const SizedBox(width: 40), // Space for FAB
+              _buildNavItem(CupertinoIcons.heart, "Favoritos", 3),
+              _buildNavItem(CupertinoIcons.person, "Meu Perfil", 4),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildNavItem(IconData icon, String label, int index) {
+    return Expanded(
+      child: InkWell(
+        onTap: () => controller.animateToPage(
+          index,
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.ease,
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              icon,
+              color: currentIndex == index ? AppColors.primary : Colors.black87,
             ),
-            BottomNavigationBarItem(
-                icon: Icon(CupertinoIcons.chat_bubble), label: "Mensagem"),
-            BottomNavigationBarItem(
-                icon: Icon(CupertinoIcons.house_alt), label: "Ofertas"),
-            BottomNavigationBarItem(
-                icon: Icon(CupertinoIcons.heart), label: "Favoritos"),
-            BottomNavigationBarItem(
-                icon: Icon(CupertinoIcons.person), label: "Meu Perfil"),
+            const SizedBox(height: 4),
+            Text(
+              label,
+              style: TextStyle(
+                fontSize: 10,
+                color: currentIndex == index ? AppColors.primary : Colors.black87,
+              ),
+            ),
           ],
         ),
       ),
