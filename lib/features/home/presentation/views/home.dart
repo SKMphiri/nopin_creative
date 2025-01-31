@@ -1,8 +1,8 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:nopin_creative/core/constants/colors.dart';
+import 'package:nopin_creative/core/shared/widgets/publish_property.dart';
 import 'package:nopin_creative/features/chat/presentation/views/chat.dart';
-import 'package:nopin_creative/features/explore/presentation/views/explore.dart';
 import 'package:nopin_creative/features/favorites/presentation/views/favorite.dart';
 import 'package:nopin_creative/features/home/presentation/views/offers.dart';
 import 'package:nopin_creative/features/profile/presentation/pages/profile.dart';
@@ -49,7 +49,7 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
       ),
       builder: (context) {
-        return Container();
+        return const PublishProperty();
       },
     );
   }

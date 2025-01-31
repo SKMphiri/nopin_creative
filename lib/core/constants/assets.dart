@@ -38,6 +38,8 @@ class AppImages {
   static const String quality = 'assets/images/quality.png';
   static const String registered = 'assets/images/registered.png';
   static const String goal = 'assets/images/goal.png';
+  static const String beachHouse2 = 'assets/images/beach_house_two.png';
+  static const String  beachHouse3 = 'assets/images/beach_house_three.png';
 }
 
 class OnboardingContent {
