@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:nopin_creative/core/constants/assets.dart';
+import 'package:nopin_creative/features/profile/presentation/views/property_submition_summary.dart';
 
 class PublishProperty extends StatefulWidget {
   const PublishProperty({super.key});
@@ -48,7 +49,7 @@ class _PublishPropertyState extends State<PublishProperty> {
 
     return Container(
       width: double.infinity,
-      height: screenHeight * 0.7,
+      height: screenHeight * 0.94,
       padding: const EdgeInsets.all(16),
       decoration: const BoxDecoration(
         color: Colors.white,
@@ -81,7 +82,7 @@ class _PublishPropertyState extends State<PublishProperty> {
           ),
           // Scrollable Content
           SizedBox(
-            height: screenHeight * 0.7 - 80 - bottomPadding,
+            height: screenHeight * 0.84  - bottomPadding,
             child: SingleChildScrollView(
               physics: const ClampingScrollPhysics(),
               child: Column(
@@ -385,6 +386,19 @@ class _PublishPropertyState extends State<PublishProperty> {
       child: ElevatedButton(
         onPressed: () {
           // Handle form submission
+          showModalBottomSheet(
+            isScrollControlled: true,
+            context: context,
+            shape: const RoundedRectangleBorder(
+              borderRadius: BorderRadius.only(
+                topLeft: Radius.circular(30),
+                topRight: Radius.circular(30),
+              ),
+            ),
+            builder: (context) {
+              return const PropertySubmitionSummary();
+            },
+          );
         },
         style: ElevatedButton.styleFrom(
           backgroundColor: const Color(0xFF333333),
@@ -394,7 +408,7 @@ class _PublishPropertyState extends State<PublishProperty> {
           ),
         ),
         child: Text(
-          "Submeter",
+          "Continuar",
           style: GoogleFonts.poppins(
             color: Colors.white,
             fontWeight: FontWeight.w600,
