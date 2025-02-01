@@ -38,6 +38,7 @@ class _OffersViewState extends State<OffersView> {
         toolbarHeight: kToolbarHeight + 10,
         elevation: 0,
         shadowColor: Colors.transparent,
+        surfaceTintColor: Colors.transparent,
         backgroundColor: Colors.white,
          leading: Container(
           margin: const EdgeInsets.only(left: 20),
