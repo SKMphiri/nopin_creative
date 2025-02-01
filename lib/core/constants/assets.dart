@@ -23,6 +23,10 @@ class AppIcons {
   static const String emola = 'assets/icons/emola.png';
   static const String userTwo = 'assets/icons/user_two.png';
   static const String phoneCall = 'assets/icons/phone_call.png';
+  static const String shield = 'assets/icons/shield.png';
+  static const String idCard = 'assets/icons/id_card.png';
+  static const String passport = 'assets/icons/passport.png';
+  static const String licensePlate = 'assets/icons/license_plate.png';
 
 }
 

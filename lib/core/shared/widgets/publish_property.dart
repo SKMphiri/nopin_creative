@@ -387,7 +387,7 @@ class _PublishPropertyState extends State<PublishProperty> {
           // Handle form submission
         },
         style: ElevatedButton.styleFrom(
-          backgroundColor: Color(0xFF333333),
+          backgroundColor: const Color(0xFF333333),
           minimumSize: const Size(double.infinity, 50),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(30),

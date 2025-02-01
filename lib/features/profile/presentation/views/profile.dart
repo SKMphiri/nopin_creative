@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:nopin_creative/core/constants/assets.dart';
 import 'package:nopin_creative/core/constants/colors.dart';
+import 'package:nopin_creative/features/profile/presentation/views/verify_profile.dart';
 
 class ProfileView extends StatelessWidget {
   const ProfileView({super.key});
@@ -10,26 +11,32 @@ class ProfileView extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        surfaceTintColor: Colors.transparent,
         centerTitle: true,
-        title: const Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(
-              "Verifiy Profile",
-              style: TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.bold,
-                  decoration: TextDecoration.underline),
-            ),
-            SizedBox(
-              width: 10,
-            ),
-            Image(
-              image: AssetImage(AppIcons.warningTwo),
-              width: 16,
-              height: 16,
-            )
-          ],
+        title: InkWell(
+          onTap: (){
+            Navigator.of(context).push(MaterialPageRoute(builder: (context)=> const VerifyProfile()));
+          },
+          child: const Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(
+                "Verifiy Profile",
+                style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.bold,
+                    decoration: TextDecoration.underline),
+              ),
+              SizedBox(
+                width: 10,
+              ),
+              Image(
+                image: AssetImage(AppIcons.warningTwo),
+                width: 16,
+                height: 16,
+              )
+            ],
+          ),
         ),
         backgroundColor: Colors.white,
         elevation: 0,
@@ -433,7 +440,7 @@ class ProfileView extends StatelessWidget {
               ),
             ),
             const SizedBox(
-              height: 10,
+              height: 40,
             ),
           ],
         ),

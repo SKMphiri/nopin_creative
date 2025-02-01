@@ -5,7 +5,7 @@ import 'package:nopin_creative/core/shared/widgets/publish_property.dart';
 import 'package:nopin_creative/features/chat/presentation/views/chat.dart';
 import 'package:nopin_creative/features/favorites/presentation/views/favorite.dart';
 import 'package:nopin_creative/features/home/presentation/views/offers.dart';
-import 'package:nopin_creative/features/profile/presentation/pages/profile.dart';
+import 'package:nopin_creative/features/profile/presentation/views/profile.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
