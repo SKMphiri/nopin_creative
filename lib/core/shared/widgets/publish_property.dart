@@ -91,7 +91,7 @@ class _PublishPropertyState extends State<PublishProperty> {
                   _buildTextFieldSection("Título", TextInputType.text),
                   _buildTextFieldSection("Endereço", TextInputType.streetAddress),
                   _buildCategorySection(),
-                  _buildNumberInputSection(),
+                  selectedCategory == "Terreno" ? _buildLandSection() :  _buildNumberInputSection(),
                   _buildPriceSection(),
                   _buildContactSection(),
                   _buildDescriptionSection(),
@@ -213,6 +213,16 @@ class _PublishPropertyState extends State<PublishProperty> {
     );
   }
 
+  Widget _buildLandSection(){
+    return Row(
+      children: [
+        _buildNumberField("Largura(M)", size: 100),
+        const SizedBox(width: 10,),
+        _buildNumberField("Comprimento(M)", size: 140),
+      ],
+    );
+  }
+
   Widget _buildNumberInputSection() {
     return Row(
       children: [
@@ -274,9 +284,9 @@ class _PublishPropertyState extends State<PublishProperty> {
     );
   }
 
-  Widget _buildNumberField(String title) {
+  Widget _buildNumberField(String title, {double size = 80}) {
     return SizedBox(
-      width: 80,
+      width: size,
       child: PublishPropertySection(
         title: title,
         child: TextField(
