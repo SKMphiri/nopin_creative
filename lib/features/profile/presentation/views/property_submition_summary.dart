@@ -204,20 +204,7 @@ class _PropertySubmitionSummaryState extends State<PropertySubmitionSummary> {
               padding: const EdgeInsets.only(top: 10),
               child: ElevatedButton(
                 onPressed: () {
-                  // Handle form submission
-                  showModalBottomSheet(
-                    isScrollControlled: true,
-                    context: context,
-                    shape: const RoundedRectangleBorder(
-                      borderRadius: BorderRadius.only(
-                        topLeft: Radius.circular(30),
-                        topRight: Radius.circular(30),
-                      ),
-                    ),
-                    builder: (context) {
-                      return const PropertySubmitionSummary();
-                    },
-                  );
+
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFF333333),
