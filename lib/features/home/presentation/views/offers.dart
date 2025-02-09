@@ -1,12 +1,11 @@
-
 import 'dart:math';
 
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:nopin_creative/core/constants/assets.dart';
 import 'package:nopin_creative/core/constants/colors.dart';
 import 'package:nopin_creative/core/shared/widgets/custom_input.dart';
 import 'package:nopin_creative/core/shared/widgets/property_attribure.dart';
+import 'package:nopin_creative/features/explore/presentation/views/explore.dart';
 import 'package:nopin_creative/features/home/data/models/property.dart';
 import 'package:nopin_creative/features/home/presentation/views/offers_details.dart';
 
@@ -29,8 +28,6 @@ class _OffersViewState extends State<OffersView> {
     searchController = TextEditingController();
   }
 
-
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -40,7 +37,7 @@ class _OffersViewState extends State<OffersView> {
         shadowColor: Colors.transparent,
         surfaceTintColor: Colors.transparent,
         backgroundColor: Colors.white,
-         leading: Container(
+        leading: Container(
           margin: const EdgeInsets.only(left: 20),
           decoration: BoxDecoration(
               shape: BoxShape.circle,
@@ -55,8 +52,17 @@ class _OffersViewState extends State<OffersView> {
             ),
           ),
         ),
-        actions: const [
-          Padding(
+        actions:  [
+          InkWell(
+            onTap: (){
+              Navigator.push(context, MaterialPageRoute(builder: (context)=> const ExploreView()));
+            },
+            child:const Icon(
+              Icons.location_searching_sharp,
+              color: Colors.black45,
+            ),
+          ),
+          const Padding(
             padding: EdgeInsets.all(20),
             child: Image(image: AssetImage(AppIcons.notification)),
           )
@@ -118,7 +124,6 @@ class _OffersViewState extends State<OffersView> {
               OfferViewPropertyList(
                 title: "Propriedades em destaque",
                 properties: properties,
-
               ),
               //recommend
               OfferViewPropertyList(
@@ -130,14 +135,16 @@ class _OffersViewState extends State<OffersView> {
           ),
         ),
       )),
-
     );
   }
 }
 
 class OfferViewPropertyList extends StatefulWidget {
   const OfferViewPropertyList(
-      {super.key, required this.title, required this.properties, this.onDemand = true});
+      {super.key,
+      required this.title,
+      required this.properties,
+      this.onDemand = true});
 
   final String title;
   final List<Property> properties;
@@ -177,29 +184,36 @@ class _OfferViewPropertyListState extends State<OfferViewPropertyList> {
           child: Row(
             children: widget.properties.map((element) {
               // TODO: NEW ELEMENT ADDED, BOTTOM MODAL SHEET
-              return  GestureDetector( onTap: (){
-                showModalBottomSheet(
-                   isScrollControlled: true,
-                  context: context,
-                  shape: const RoundedRectangleBorder(
-                    borderRadius: BorderRadius.only(
-                      topLeft: Radius.circular(30),
-                      topRight: Radius.circular(30),
+              return GestureDetector(
+                onTap: () {
+                  showModalBottomSheet(
+                    isScrollControlled: true,
+                    context: context,
+                    shape: const RoundedRectangleBorder(
+                      borderRadius: BorderRadius.only(
+                        topLeft: Radius.circular(30),
+                        topRight: Radius.circular(30),
+                      ),
                     ),
-                  ),
-                  builder: (context) {
-                    return OfferDetails(
-                      title: element.title,
-                      location: element.location,
-                      price: element.price.toDouble(), bedrooms: 1, bathrooms: 3, parking: true, description: 'lorem', assetImagePath: 'assets/images/beach_house.png',
-                    );
-                  },
-                );
-              },
+                    builder: (context) {
+                      return OfferDetails(
+                        title: element.title,
+                        location: element.location,
+                        price: element.price.toDouble(),
+                        bedrooms: 1,
+                        bathrooms: 3,
+                        parking: true,
+                        description: 'lorem',
+                        assetImagePath: 'assets/images/beach_house.png',
+                      );
+                    },
+                  );
+                },
                 child: Container(
-                  margin:
-                      const EdgeInsets.only(left: 10, right: 10, bottom: 16, top: 5),
-                  padding: const EdgeInsets.only(bottom: 10, left: 4, right: 4, top: 4),
+                  margin: const EdgeInsets.only(
+                      left: 10, right: 10, bottom: 16, top: 5),
+                  padding: const EdgeInsets.only(
+                      bottom: 10, left: 4, right: 4, top: 4),
                   decoration: BoxDecoration(
                       color: Colors.white,
                       borderRadius: BorderRadius.circular(12),
@@ -243,7 +257,6 @@ class _OfferViewPropertyListState extends State<OfferViewPropertyList> {
                               child: Image(
                                 image: AssetImage(AppImages.trustBadge),
                                 width: 40,
-
                               ),
                             ),
                           ),
@@ -264,7 +277,8 @@ class _OfferViewPropertyListState extends State<OfferViewPropertyList> {
                         ],
                       ),
                       Padding(
-                        padding: const EdgeInsets.only(top: 8, left: 8, right: 8),
+                        padding:
+                            const EdgeInsets.only(top: 8, left: 8, right: 8),
                         child: Row(
                           crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
@@ -364,7 +378,6 @@ class _OfferViewPropertyListState extends State<OfferViewPropertyList> {
     );
   }
 //TODO: Scroll effect
-
 }
 
 class HeartCirclePainter extends CustomPainter {

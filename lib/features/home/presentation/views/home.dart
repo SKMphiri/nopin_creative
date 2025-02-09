@@ -29,8 +29,8 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   List<Widget> homeScreens = const [
-    // ExploreView(),
     OffersView(),
+    // ExploreView(),
     ChatView(),
     FavoriteView(),
     ProfileView()

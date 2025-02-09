@@ -24,6 +24,7 @@ android {
         applicationId = "com.example.nopin_creative"
         // You can update the following values to match your application needs.
         // For more information, see: https://flutter.dev/to/review-gradle-config.
+//        buildConfigField("String", "GOOGLE_MAPS_API_KEY", "AIzaSyBkdq0JXfjnZX6lh1ADGLJ3LxqR1ESi1sI")
         minSdk = 23
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
