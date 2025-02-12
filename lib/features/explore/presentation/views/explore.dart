@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -13,9 +15,56 @@ class ExploreView extends StatefulWidget {
 }
 
 class _ExploreViewState extends State<ExploreView> {
-  final LatLng _isutc = LatLng(-25.955582410694454, 32.59946372579154);
-  final LatLng _isctem = LatLng(-25.977376277196925, 32.58152365031621);
-  bool _isExpandedCard = false; // State to control card expansion
+  final LatLng _initialCameraPosition =
+      const LatLng(-25.955582410694454, 32.59946372579154);
+  bool _isExpandedCard = false;
+  Property? _selectedProperty;
+  bool _isContainerVisible = false;
+
+  @override
+  void initState() {
+    super.initState();
+    // Initialize with the first property to show the container on startup
+    _selectedProperty = properties[0];
+    _isContainerVisible = true;
+  }
+
+  Set<Marker> _createMarkers() {
+    return properties.map((property) {
+      return Marker(
+        markerId: MarkerId(property.id),
+        position: property.position,
+        icon: BitmapDescriptor.defaultMarkerWithHue(
+          _getHueForPropertyType(property.type),
+        ), // Blue hue
+        // OR use a custom icon asset:
+        // icon: BitmapDescriptor.fromAssetImage(
+        //   const ImageConfiguration(size: Size(48, 48)),
+        //   AppImages.locationIcon,
+        // ),
+        onTap: () {
+          setState(() {
+            _selectedProperty = property;
+            _isExpandedCard = false;
+            _isContainerVisible = true;
+          });
+        },
+      );
+    }).toSet();
+  }
+
+  double _getHueForPropertyType(PropertyType type) {
+    switch (type) {
+      case PropertyType.land:
+        return BitmapDescriptor.hueGreen;
+      case PropertyType.rent:
+        return BitmapDescriptor.hueBlue;
+      case PropertyType.house:
+        return BitmapDescriptor.hueRed;
+      default:
+        return BitmapDescriptor.hueOrange;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -23,31 +72,27 @@ class _ExploreViewState extends State<ExploreView> {
     return Scaffold(
       body: Stack(
         children: [
-          GoogleMap(
-            zoomControlsEnabled: false,
-            initialCameraPosition: CameraPosition(target: _isutc, zoom: 15),
-            markers: {
-              Marker(
-                markerId: MarkerId("_currentLocation"),
-                icon: BitmapDescriptor.defaultMarker,
-                position: _isutc,
-              ),
-              Marker(
-                markerId: MarkerId("_otherLocation"),
-                icon: BitmapDescriptor.defaultMarker,
-                position: _isctem,
-              )
-            },
-          ),
+          FutureBuilder<Set<Marker>>(
+              // FutureBuilder to build markers with custom icons
+              future: _buildMarkersWithIcons(),
+              builder:
+                  (BuildContext context, AsyncSnapshot<Set<Marker>> snapshot) {
+                Set<Marker> markers = snapshot.data ??
+                    _createMarkers(); // Fallback to default markers during loading
+                return GoogleMap(
+                  zoomControlsEnabled: false,
+                  initialCameraPosition:
+                      CameraPosition(target: _initialCameraPosition, zoom: 12),
+                  markers: markers,
+                );
+              }),
           AnimatedPositioned(
-            // Changed to AnimatedPositioned for smooth transition
             duration: const Duration(milliseconds: 300),
             curve: Curves.easeInOut,
-            bottom: 0,
+            bottom: _isContainerVisible ? 0 : -screenHeight * 0.4,
             left: 0,
             right: 0,
             height: _isExpandedCard ? screenHeight * 0.8 : 160,
-            // Expanded height, adjust as needed
             child: AnimatedContainer(
               duration: const Duration(milliseconds: 300),
               curve: Curves.easeInOut,
@@ -55,18 +100,20 @@ class _ExploreViewState extends State<ExploreView> {
               padding: const EdgeInsets.all(10.0),
               decoration: BoxDecoration(
                   color: Colors.white,
-                  borderRadius: BorderRadius.circular(
-                      _isExpandedCard ? 30 : 10), // Rounded corners on expand
+                  borderRadius:
+                      BorderRadius.circular(_isExpandedCard ? 30 : 10),
                   boxShadow: const [
                     BoxShadow(
                         color: Colors.black12,
-                        blurRadius: 3, // Increased blur for expanded state
+                        blurRadius: 3,
                         offset: Offset(0, 0),
-                        spreadRadius: 2) // Increased spread for expanded state
+                        spreadRadius: 2)
                   ]),
-              child: _isExpandedCard
-                  ? buildExpandedCardContent() // Build expanded content
-                  : buildCollapsedCardContent(), // Build collapsed content
+              child: _isContainerVisible
+                  ? _isExpandedCard
+                      ? buildExpandedCardContent(_selectedProperty!)
+                      : buildCollapsedCardContent(_selectedProperty!)
+                  : const SizedBox.shrink(),
             ),
           ),
         ],
@@ -74,7 +121,34 @@ class _ExploreViewState extends State<ExploreView> {
     );
   }
 
-  Widget buildCollapsedCardContent() {
+  Future<Set<Marker>> _buildMarkersWithIcons() async {
+    Set<Marker> markers = {};
+    for (var property in properties) {
+      bool isSelected = property.id == _selectedProperty?.id;
+      // Use property.imageAsset instead of AppImages.beachHouse
+      BitmapDescriptor customIcon = await BitmapDescriptor.asset(
+        const ImageConfiguration(size: Size(48, 48)),
+        AppIcons.locationPin,
+      );
+      markers.add(
+        Marker(
+          markerId: MarkerId(property.id),
+          icon: customIcon,
+          position: property.position,
+          onTap: () {
+            setState(() {
+              _selectedProperty = property;
+              _isExpandedCard = false;
+              _isContainerVisible = true;
+            });
+          },
+        ),
+      );
+    }
+    return markers;
+  }
+
+  Widget buildCollapsedCardContent(Property property) {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -96,13 +170,13 @@ class _ExploreViewState extends State<ExploreView> {
                 child: RichText(
                     text: TextSpan(children: [
                   TextSpan(
-                      text: "MZN 125.000.00",
+                      text: "MZN ${property.price.toStringAsFixed(0)}",
                       style: GoogleFonts.poppins(
                           color: Colors.black,
                           fontSize: 15,
                           fontWeight: FontWeight.bold)),
                   TextSpan(
-                      text: "/mês",
+                      text: property.type == PropertyType.rent ? "/mês" : "",
                       style: GoogleFonts.poppins(
                           color: Colors.black,
                           fontSize: 12,
@@ -124,7 +198,7 @@ class _ExploreViewState extends State<ExploreView> {
                       width: 2,
                     ),
                     Text(
-                      properties[0].location,
+                      property.location,
                       style: GoogleFonts.poppins(
                         color: Colors.black,
                         fontSize: 10,
@@ -143,16 +217,14 @@ class _ExploreViewState extends State<ExploreView> {
                   spacing: 12,
                   runSpacing: 5.0,
                   crossAxisAlignment: WrapCrossAlignment.center,
-                  children: properties[0]
-                      .attributes
-                      .entries
+                  children: property.attributes.entries
                       .map(
                         (el) {
                           return renderPropertyAttribute(el, size: 1.3);
                         },
                       )
                       .toList()
-                      .sublist(0, properties[0].attributes.entries.length - 2),
+                      .sublist(0, property.attributes.entries.length - 2),
                 ),
               ),
               const Spacer(),
@@ -165,8 +237,7 @@ class _ExploreViewState extends State<ExploreView> {
                   child: ElevatedButton(
                     onPressed: () {
                       setState(() {
-                        _isExpandedCard =
-                            !_isExpandedCard; // Toggle expansion state
+                        _isExpandedCard = true;
                       });
                     },
                     style: ElevatedButton.styleFrom(
@@ -194,22 +265,42 @@ class _ExploreViewState extends State<ExploreView> {
     );
   }
 
-  Widget buildExpandedCardContent() {
+  Widget buildExpandedCardContent(Property property) {
     return SingleChildScrollView(
-      // Added SingleChildScrollView for scrollable content
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           ClipRRect(
             borderRadius: BorderRadius.circular(22),
-            // More rounded in expanded state
             child: const Image(
               image: AssetImage(AppImages.beachHouse),
               width: double.infinity,
-              // Image takes full width in expanded state
               height: 200,
-              // Adjust height as needed in expanded state
-              fit: BoxFit.cover, // Use BoxFit.cover for expanded image
+              fit: BoxFit.cover,
+            ),
+          ),
+          Padding(
+            padding:
+            const EdgeInsets.only(top: 8, left: 8, right: 8),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Container(
+                  width: 7,
+                  height: 7,
+                  decoration: const BoxDecoration(
+                      shape: BoxShape.circle, color: Colors.green),
+                ),
+                const SizedBox(
+                  width: 2,
+                ),
+                Text(
+                  property.type == PropertyType.rent
+                      ? "Arrenda-se"
+                      : "Terreno",
+                  style: const TextStyle(fontSize: 12),
+                ),
+              ],
             ),
           ),
           Padding(
@@ -217,16 +308,16 @@ class _ExploreViewState extends State<ExploreView> {
             child: RichText(
                 text: TextSpan(children: [
               TextSpan(
-                  text: "MZN 125.000.00",
+                  text: "MZN ${property.price.toStringAsFixed(0)}",
                   style: GoogleFonts.poppins(
                       color: Colors.black,
-                      fontSize: 22, // Larger font in expanded state
+                      fontSize: 22,
                       fontWeight: FontWeight.bold)),
               TextSpan(
-                  text: "/mês",
+                  text: property.type == PropertyType.rent ? "/mês" : "",
                   style: GoogleFonts.poppins(
                       color: Colors.black,
-                      fontSize: 16, // Larger font in expanded state
+                      fontSize: 16,
                       fontWeight: FontWeight.bold)),
             ])),
           ),
@@ -239,16 +330,16 @@ class _ExploreViewState extends State<ExploreView> {
               children: [
                 const Icon(
                   Icons.location_on_rounded,
-                  size: 14, // Slightly larger icon
+                  size: 14,
                 ),
                 const SizedBox(
                   width: 4,
                 ),
                 Text(
-                  properties[0].location,
+                  property.location,
                   style: GoogleFonts.poppins(
                     color: Colors.black,
-                    fontSize: 12, // Larger font in expanded state
+                    fontSize: 12,
                   ),
                 )
               ],
@@ -263,14 +354,20 @@ class _ExploreViewState extends State<ExploreView> {
               direction: Axis.horizontal,
               spacing: 12,
               runSpacing: 8.0,
-              // Increased runSpacing in expanded
               crossAxisAlignment: WrapCrossAlignment.center,
-              children: properties[0].attributes.entries.map(
+              children: property.attributes.entries.map(
                 (el) {
-                  return renderPropertyAttribute(el,
-                      size: 1.5); // Slightly larger attribute icons
+                  return renderPropertyAttribute(el, size: 1.5);
                 },
-              ).toList(), // Show all attributes in expanded state, no sublist
+              ).toList(),
+            ),
+          ),
+          const SizedBox(height: 10,),
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Text(
+              property.description,
+              style: GoogleFonts.poppins(),
             ),
           ),
           Padding(
@@ -278,14 +375,12 @@ class _ExploreViewState extends State<ExploreView> {
             child: ElevatedButton(
               onPressed: () {
                 setState(() {
-                  _isExpandedCard =
-                      !_isExpandedCard; // Toggle back to collapsed
+                  _isExpandedCard = false;
                 });
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFF333333),
                 minimumSize: const Size(double.maxFinite, 50),
-                // Larger button in expanded
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(30),
                 ),
@@ -295,7 +390,7 @@ class _ExploreViewState extends State<ExploreView> {
                 style: GoogleFonts.poppins(
                   color: Colors.white,
                   fontWeight: FontWeight.w600,
-                  fontSize: 16, // Larger font in expanded
+                  fontSize: 16,
                 ),
               ),
             ),

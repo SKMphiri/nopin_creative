@@ -27,6 +27,7 @@ class AppIcons {
   static const String idCard = 'assets/icons/id_card.png';
   static const String passport = 'assets/icons/passport.png';
   static const String licensePlate = 'assets/icons/license_plate.png';
+  static const String locationPin = 'assets/icons/location_pin.png';
 
 }
 
