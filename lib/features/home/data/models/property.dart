@@ -35,8 +35,6 @@ class Property extends Equatable {
 const quickOptions = ["Arrendar", "Comprar", "Terreno", "Casas"];
 
 final List<Property> properties = [
-  // ... (Existing properties)
-
   // Ponta do Ouro
   const Property(
     id: "5",
@@ -132,7 +130,7 @@ final List<Property> properties = [
       PropertyAttributeType.parking: 1
     },
     active: true,
-    position: LatLng(-24.5257, 34.7010), // Example coordinates, adjust as needed.  You'll want to find more precise ones.
+    position: LatLng(-25.280441584726564, 33.24336415869637), // Example coordinates, adjust as needed.  You'll want to find more precise ones.
     description: "Your perfect family holiday starts here at this charming Bilene holiday home. Nestled in a peaceful area of Bilene, this house offers a relaxing escape with easy access to the lagoon and local amenities.",
   ),
 ];
