@@ -16,6 +16,7 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   late PageController controller;
+  int currentIndex = 0;
 
   @override
   void initState() {
@@ -23,22 +24,19 @@ class _HomeScreenState extends State<HomeScreen> {
     controller = PageController(initialPage: 0);
     controller.addListener(() {
       setState(() {
-        currentIndex = controller.page!.toInt();
+        currentIndex = controller.page!.round();
       });
     });
   }
 
   List<Widget> homeScreens = const [
     OffersView(),
-    // ExploreView(),
     ChatView(),
     FavoriteView(),
     ProfileView()
   ];
-  int currentIndex = 0;
 
   void _onFabPressed() {
-    // Handle FAB press
     showModalBottomSheet(
       isScrollControlled: true,
       context: context,
@@ -48,10 +46,65 @@ class _HomeScreenState extends State<HomeScreen> {
           topRight: Radius.circular(30),
         ),
       ),
-      builder: (context) {
-        return const PublishProperty();
-      },
+      builder: (context) => const PublishProperty(),
     );
+  }
+
+  void _showFavoritesBottomSheet() {
+    setState(() {
+      currentIndex = 2; // Set Favorites as active
+    });
+    showModalBottomSheet(
+      isScrollControlled: true,
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.only(
+          topLeft: Radius.circular(30),
+          topRight: Radius.circular(30),
+        ),
+      ),
+      builder: (context) => Container(
+        height: MediaQuery.of(context).size.height * 0.92,
+        padding: const EdgeInsets.all(16),
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.only(
+            topLeft: Radius.circular(30),
+            topRight: Radius.circular(30),
+          ),
+        ),
+        child: const FavoriteView(),
+      ),
+    ).then((_) {
+      if (controller.page != null) {
+        setState(() {
+          currentIndex = controller.page!.round();
+        });
+      }
+    });
+  }
+
+  void _navigateToPage(int navIndex) {
+    if (navIndex == 2) {
+      _showFavoritesBottomSheet();
+    } else {
+      int pageIndex;
+      if (navIndex == 0) {
+        pageIndex = 0; // Offers
+      } else if (navIndex == 1) {
+        pageIndex = 1; // Chat
+      } else if (navIndex == 3) {
+        pageIndex = 3; // Profile
+      } else {
+        return;
+      }
+
+      controller.animateToPage(
+        pageIndex,
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.ease,
+      );
+    }
   }
 
   @override
@@ -81,13 +134,11 @@ class _HomeScreenState extends State<HomeScreen> {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              _buildNavItem(
-                 CupertinoIcons.house_alt,  "Ofertas", 0),
-              // _buildNavItem(Icons.search, "Explorar", 0),
+              _buildNavItem(CupertinoIcons.house_alt, "Ofertas", 0),
               _buildNavItem(CupertinoIcons.chat_bubble, "Mensagem", 1),
-              const SizedBox(width: 40), // Space for FAB
-              _buildNavItem(CupertinoIcons.heart, "Favoritos", 3),
-              _buildNavItem(CupertinoIcons.person, "Meu Perfil", 4),
+              const SizedBox(width: 40),
+              _buildNavItem(CupertinoIcons.heart, "Favoritos", 2),
+              _buildNavItem(CupertinoIcons.person, "Meu Perfil", 3),
             ],
           ),
         ),
@@ -98,17 +149,15 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget _buildNavItem(IconData icon, String label, int index) {
     return Expanded(
       child: InkWell(
-        onTap: () => controller.animateToPage(
-          index,
-          duration: const Duration(milliseconds: 300),
-          curve: Curves.ease,
-        ),
+        onTap: () => _navigateToPage(index),
+        splashColor: AppColors.primary.withValues(alpha: 0.1),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             Icon(
               icon,
               color: currentIndex == index ? AppColors.primary : Colors.black87,
+              size: 24,
             ),
             const SizedBox(height: 4),
             Text(
@@ -116,11 +165,18 @@ class _HomeScreenState extends State<HomeScreen> {
               style: TextStyle(
                 fontSize: 10,
                 color: currentIndex == index ? AppColors.primary : Colors.black87,
+                fontWeight: currentIndex == index ? FontWeight.bold : FontWeight.normal,
               ),
             ),
           ],
         ),
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    controller.dispose();
+    super.dispose();
   }
 }

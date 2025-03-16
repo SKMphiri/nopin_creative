@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:nopin_creative/core/constants/assets.dart';
-import 'package:nopin_creative/features/profile/presentation/views/document_type_selection.dart';
-import 'package:nopin_creative/features/profile/presentation/views/verify_profile_picture.dart';
+import 'package:nopin_creative/features/profile/presentation/views/capture_document.dart';
 
-class VerifyProfile extends StatelessWidget {
-  const VerifyProfile({super.key});
+class VerifyProfilePicture extends StatelessWidget {
+  const VerifyProfilePicture({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -17,14 +16,14 @@ class VerifyProfile extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Image(
-              image: AssetImage(AppIcons.shield),
+              image: AssetImage(AppIcons.userThree),
               width: 40,
             ),
             const SizedBox(
               height: 15,
             ),
             Text(
-              "Verifique a sua identidade",
+              "Verifique a sua foto",
               style: GoogleFonts.poppins(
                   fontSize: 20, fontWeight: FontWeight.w500),
             ),
@@ -32,7 +31,7 @@ class VerifyProfile extends StatelessWidget {
               height: 8,
             ),
             Text(
-              "Por favor certifique-se que os seus documentos de identificacao estao prontos consigo",
+              "Por favor certifique-se que esta num local com luz  para tirar uma selfie",
               style: GoogleFonts.poppins(
                   fontSize: 14, fontWeight: FontWeight.w400),
             ),
@@ -42,7 +41,7 @@ class VerifyProfile extends StatelessWidget {
               padding: const EdgeInsets.only(top: 20),
               child: ElevatedButton(
                 onPressed: () async {
-                 final String? imagePath = await showModalBottomSheet(
+                  final String? imagePath = await showModalBottomSheet(
                     isScrollControlled: true,
                     context: context,
                     shape: const RoundedRectangleBorder(
@@ -52,17 +51,16 @@ class VerifyProfile extends StatelessWidget {
                       ),
                     ),
                     builder: (context) {
-                      return const DocumentTypeSelection();
+                      return const CaptureDocument(isProfilePicture: true,);
                     },
                   );
 
-                 if (imagePath != null) {
-                   // ScaffoldMessenger.of(context).showSnackBar(
-                   //   SnackBar(content: Text('Image captured at: $imagePath')),
-                   // );
-                   
-                   Navigator.push(context, MaterialPageRoute(builder: (context)=> const VerifyProfilePicture()));
-                 }
+                  if (imagePath != null) {
+                    // ScaffoldMessenger.of(context).showSnackBar(
+                    //   SnackBar(content: Text('Image captured at: $imagePath')),
+                    // );
+
+                  }
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFF333333),

@@ -7,6 +7,7 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:nopin_creative/core/constants/assets.dart';
 import 'package:nopin_creative/core/shared/widgets/property_attribure.dart';
 import 'package:nopin_creative/features/home/data/models/property.dart';
+import 'package:permission_handler/permission_handler.dart'; // Added import
 
 class ExploreView extends StatefulWidget {
   const ExploreView({super.key});
@@ -25,6 +26,7 @@ class _ExploreViewState extends State<ExploreView> {
   bool _isPriceFilterApplied = false;
   double _minPrice = 0;
   double _maxPrice = 12000000;
+  bool _hasLocationPermission = false; // Track permission status
 
   @override
   void initState() {
@@ -32,6 +34,25 @@ class _ExploreViewState extends State<ExploreView> {
     _selectedProperty = properties[0];
     _isContainerVisible = true;
     controller = TextEditingController();
+    _requestLocationPermission(); // Request permission on init
+  }
+
+  // Request location permission
+  Future<void> _requestLocationPermission() async {
+    final status = await Permission.location.request();
+    setState(() {
+      _hasLocationPermission = status.isGranted;
+    });
+    if (!status.isGranted) {
+      // Optionally show a dialog or snackbar if permission is denied
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Location permission is required to display the map.'),
+          ),
+        );
+      }
+    }
   }
 
   Set<Marker> _createMarkers() {
@@ -68,7 +89,7 @@ class _ExploreViewState extends State<ExploreView> {
         return BitmapDescriptor.hueBlue;
       case PropertyType.house:
         return BitmapDescriptor.hueRed;
-      }
+    }
   }
 
   @override
@@ -89,7 +110,7 @@ class _ExploreViewState extends State<ExploreView> {
       ),
       builder: (context) => StatefulBuilder(
         builder: (context, setModalState) => Padding(
-          padding: EdgeInsets.all(MediaQuery.of(context).size.width * 0.04), // Responsive padding
+          padding: EdgeInsets.all(MediaQuery.of(context).size.width * 0.04),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -187,9 +208,15 @@ class _ExploreViewState extends State<ExploreView> {
               builder: (context, snapshot) {
                 Set<Marker> markers = snapshot.data ?? _createMarkers();
                 return GoogleMap(
+                  mapType: MapType.normal,
                   zoomControlsEnabled: false,
                   initialCameraPosition: CameraPosition(target: _initialCameraPosition, zoom: 12),
                   markers: markers,
+                  myLocationEnabled: _hasLocationPermission, // Enable "My Location" if permitted
+                  myLocationButtonEnabled: _hasLocationPermission, // Show button if permitted
+                  onMapCreated: (GoogleMapController controller) {
+                    print("Map created successfully!");
+                  },
                 );
               },
             ),
@@ -200,7 +227,7 @@ class _ExploreViewState extends State<ExploreView> {
             right: 0,
             child: SafeArea(
               child: Padding(
-                padding: EdgeInsets.all(screenWidth * 0.04), // Responsive padding
+                padding: EdgeInsets.all(screenWidth * 0.04),
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
@@ -226,12 +253,12 @@ class _ExploreViewState extends State<ExploreView> {
                         child: BackdropFilter(
                           filter: ImageFilter.blur(sigmaX: 10.0, sigmaY: 10.0),
                           child: Container(
-                            height: screenHeight * 0.06, // Responsive height
+                            height: screenHeight * 0.06,
                             alignment: Alignment.center,
                             decoration: BoxDecoration(
-                              color: Colors.white.withValues(alpha:0.3),
+                              color: Colors.white.withValues(alpha: 0.3),
                               borderRadius: BorderRadius.circular(30.0),
-                              border: Border.all(color: Colors.white.withValues(alpha:0.5)),
+                              border: Border.all(color: Colors.white.withValues(alpha: 0.5)),
                             ),
                             child: TextField(
                               controller: controller,
@@ -257,7 +284,7 @@ class _ExploreViewState extends State<ExploreView> {
             ),
           ),
           Positioned(
-            top: MediaQuery.of(context).padding.top + screenHeight * 0.1, // Adjust for SafeArea and responsive spacing
+            top: MediaQuery.of(context).padding.top + screenHeight * 0.1,
             left: 0,
             right: 0,
             child: SingleChildScrollView(
@@ -299,7 +326,7 @@ class _ExploreViewState extends State<ExploreView> {
                         shape: BoxShape.circle,
                         color: _isPriceFilterApplied ? Colors.black87 : Colors.white.withValues(alpha: 0.95),
                         boxShadow: [
-                          BoxShadow(color: Colors.black.withValues(alpha:0.1), blurRadius: 6, offset: const Offset(0, 2)),
+                          BoxShadow(color: Colors.black.withValues(alpha: 0.1), blurRadius: 6, offset: const Offset(0, 2)),
                         ],
                       ),
                       child: Icon(
@@ -354,7 +381,6 @@ class _ExploreViewState extends State<ExploreView> {
     }).toList();
 
     for (var property in filteredProperties) {
-      // bool isSelected = property.id == _selectedProperty?.id;
       BitmapDescriptor customIcon = await BitmapDescriptor.asset(
         const ImageConfiguration(size: Size(48, 48)),
         AppIcons.locationPin,
@@ -387,7 +413,7 @@ class _ExploreViewState extends State<ExploreView> {
             padding: const EdgeInsets.all(4.0),
             child: ClipRRect(
               borderRadius: BorderRadius.circular(16.0),
-              child: Image.asset(AppImages.beachHouse, width: screenWidth * 0.35, height: double.maxFinite,  fit: BoxFit.cover),
+              child: Image.asset(AppImages.beachHouse, width: screenWidth * 0.35, height: double.maxFinite, fit: BoxFit.cover),
             ),
           ),
           SizedBox(width: screenWidth * 0.03),
@@ -436,10 +462,7 @@ class _ExploreViewState extends State<ExploreView> {
                 Wrap(
                   spacing: screenWidth * 0.02,
                   runSpacing: screenWidth * 0.01,
-                  children: property.attributes.entries
-                      .take(3)
-                      .map((el) => renderPropertyAttribute(el, size: 1.2))
-                      .toList(),
+                  children: property.attributes.entries.take(3).map((el) => renderPropertyAttribute(el, size: 1.2)).toList(),
                 ),
               ],
             ),
@@ -534,9 +557,7 @@ class _ExploreViewState extends State<ExploreView> {
                 Wrap(
                   spacing: screenWidth * 0.03,
                   runSpacing: screenWidth * 0.02,
-                  children: property.attributes.entries
-                      .map((el) => renderPropertyAttribute(el, size: 1.4))
-                      .toList(),
+                  children: property.attributes.entries.map((el) => renderPropertyAttribute(el, size: 1.4)).toList(),
                 ),
                 SizedBox(height: screenWidth * 0.04),
                 Text(
@@ -619,10 +640,10 @@ class FilterButton extends StatelessWidget {
         duration: const Duration(milliseconds: 200),
         padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.045, vertical: screenWidth * 0.025),
         decoration: BoxDecoration(
-          color: isActive ? Colors.black87 : Colors.white.withValues(alpha:0.9),
+          color: isActive ? Colors.black87 : Colors.white.withValues(alpha: 0.9),
           borderRadius: BorderRadius.circular(20.0),
           boxShadow: [
-            BoxShadow(color: Colors.black.withValues(alpha:0.1), blurRadius: 6, offset: const Offset(0, 2)),
+            BoxShadow(color: Colors.black.withValues(alpha: 0.1), blurRadius: 6, offset: const Offset(0, 2)),
           ],
         ),
         child: Text(

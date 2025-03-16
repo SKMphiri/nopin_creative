@@ -42,6 +42,8 @@ dependencies:
   dotted_line: ^3.2.3
   camera: ^0.11.1
   google_maps_flutter: ^2.10.0
+  permission_handler: ^11.4.0
+  camera_android: ^0.10.10
 dev_dependencies:
   flutter_test:
     sdk: flutter

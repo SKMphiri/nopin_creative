@@ -133,8 +133,8 @@ class _DocumentTypeSelectionState extends State<DocumentTypeSelection> {
           Padding(
             padding: const EdgeInsets.only(top: 20),
             child: ElevatedButton(
-              onPressed: () {
-                showModalBottomSheet(
+              onPressed: () async{
+                final String? imagePath = await showModalBottomSheet(
                   isScrollControlled: true,
                   context: context,
                   shape: const RoundedRectangleBorder(
@@ -144,9 +144,10 @@ class _DocumentTypeSelectionState extends State<DocumentTypeSelection> {
                     ),
                   ),
                   builder: (context) {
-                    return const CaptureDocument();
+                    return const CaptureDocument(isProfilePicture: false,);
                   },
                 );
+                Navigator.pop(context, imagePath);
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFF333333),
