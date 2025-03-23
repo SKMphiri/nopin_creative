@@ -1,8 +1,10 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:nopin_creative/core/constants/assets.dart';
 import 'package:nopin_creative/core/constants/colors.dart';
+import 'package:nopin_creative/core/shared/responsive/responsive_layout.dart';
 import 'package:nopin_creative/core/shared/widgets/custom_input.dart';
 import 'package:nopin_creative/core/shared/widgets/property_attribure.dart';
 import 'package:nopin_creative/features/explore/presentation/views/explore.dart';
@@ -16,514 +18,701 @@ class OffersView extends StatefulWidget {
   State<OffersView> createState() => _OffersViewState();
 }
 
-class _OffersViewState extends State<OffersView> {
+class _OffersViewState extends State<OffersView>
+    with AutomaticKeepAliveClientMixin {
   final welcomeMessage = "Ola, Dhalitso!";
-
   late final TextEditingController searchController;
+  final ScrollController _scrollController = ScrollController();
+
+  @override
+  bool get wantKeepAlive => true; // Prevent rebuilding when switching tabs
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     searchController = TextEditingController();
   }
 
   @override
+  void dispose() {
+    searchController.dispose();
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  void _showPropertyDetails(Property property) {
+    showModalBottomSheet(
+      isScrollControlled: true,
+      context: context,
+      backgroundColor: Colors.transparent,
+      elevation: 0,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.only(
+          topLeft: Radius.circular(28),
+          topRight: Radius.circular(28),
+        ),
+      ),
+      builder: (context) => OfferDetails(
+        title: property.title,
+        location: property.location,
+        price: property.price,
+        assetImagePath: _getImageForProperty(property),
+        bedrooms: property.attributes[PropertyAttributeType.room] ?? 0,
+        bathrooms: property.attributes[PropertyAttributeType.wc] ?? 0,
+        parking: (property.attributes[PropertyAttributeType.parking] ?? 0) > 0,
+        description: property.description,
+      ),
+    );
+  }
+
+  @override
   Widget build(BuildContext context) {
+    super.build(context); // Required by AutomaticKeepAliveClientMixin
+
+    final isTablet = ResponsiveLayout.isTablet(context);
+    final isDesktop = ResponsiveLayout.isDesktop(context);
+    final gridCount = isDesktop ? 3 : (isTablet ? 2 : 1);
+
+    // Color theme
+    final Color primaryTextColor = Colors.black87;
+    final Color secondaryTextColor = Colors.black54;
+    final Color accentColor = AppColors.primary;
+    final Color bgColor = Colors.white;
+    final Color cardShadowColor = Colors.black.withOpacity(0.05);
+
     return Scaffold(
+      backgroundColor: bgColor,
       appBar: AppBar(
         toolbarHeight: kToolbarHeight + 10,
         elevation: 0,
         shadowColor: Colors.transparent,
         surfaceTintColor: Colors.transparent,
-        backgroundColor: Colors.white,
-        leading: Container(
-          margin: const EdgeInsets.only(left: 20),
-          decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              border: Border.fromBorderSide(
-                  BorderSide(width: 1, color: AppColors.primary))),
-          child: const CircleAvatar(
-            backgroundColor: Color(0XFFD9D9D9),
+        backgroundColor: bgColor,
+        titleSpacing: 0,
+        leadingWidth: 80,
+        leading: Padding(
+          padding: EdgeInsets.only(left: isTablet ? 24 : 20),
+          child: CircleAvatar(
+            backgroundColor: Colors.grey.shade100,
             radius: 25,
-            child: Text(
-              "D",
-              style: TextStyle(fontSize: 22),
+            child: Container(
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                border:
+                    Border.all(color: accentColor.withOpacity(0.5), width: 1.5),
+              ),
+              child: CircleAvatar(
+                backgroundColor: Colors.grey.shade200,
+                radius: 22,
+                child: const Text(
+                  "D",
+                  style: TextStyle(
+                      fontSize: 22,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.black87),
+                ),
+              ),
             ),
           ),
         ),
-        actions:  [
-          InkWell(
-            onTap: (){
-              Navigator.push(context, MaterialPageRoute(builder: (context)=> const ExploreView()));
+        title: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              welcomeMessage,
+              style: TextStyle(
+                fontSize: isTablet ? 20 : 18,
+                fontWeight: FontWeight.bold,
+                color: primaryTextColor,
+              ),
+            ),
+            Text(
+              "Encontre seu imóvel ideal",
+              style: TextStyle(
+                fontSize: isTablet ? 14 : 12,
+                fontWeight: FontWeight.normal,
+                color: secondaryTextColor,
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          IconButton(
+            iconSize: isTablet ? 26 : 22,
+            onPressed: () {
+              Navigator.push(context,
+                  MaterialPageRoute(builder: (context) => const ExploreView()));
             },
-            child:const Icon(
-              Icons.location_searching_sharp,
-              color: Colors.black45,
+            icon: Icon(
+              CupertinoIcons.location,
+              color: primaryTextColor,
             ),
           ),
-          const Padding(
-            padding: EdgeInsets.all(20),
-            child: Image(image: AssetImage(AppIcons.notification)),
-          )
+          IconButton(
+            iconSize: isTablet ? 26 : 22,
+            onPressed: () {},
+            icon: Icon(
+              CupertinoIcons.bell,
+              color: primaryTextColor,
+            ),
+          ),
+          SizedBox(width: isTablet ? 16 : 8),
         ],
       ),
       body: SafeArea(
-          child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 18),
-        child: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                welcomeMessage,
-                style: const TextStyle(fontSize: 24),
-              ),
-              CustomInput(
-                controller: searchController,
-                iconUri: AppIcons.search,
-                iconSize: 6,
-                placeholder: "Procurar...",
-              ),
-              const SizedBox(
-                height: 30,
-              ),
-              //Quick options
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: quickOptions.map((element) {
-                  return Container(
-                    height: 75,
-                    width: 75,
-                    decoration: BoxDecoration(
-                        boxShadow: const [
+        child: CustomScrollView(
+          controller: _scrollController,
+          physics: const BouncingScrollPhysics(),
+          slivers: [
+            SliverPadding(
+              padding: context.paddingDefault,
+              sliver: SliverToBoxAdapter(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Search bar
+                    Container(
+                      decoration: BoxDecoration(
+                        boxShadow: [
                           BoxShadow(
-                              offset: Offset(0, 4),
-                              blurRadius: 10,
-                              color: Colors.black12)
+                            color: cardShadowColor,
+                            blurRadius: 10,
+                            offset: const Offset(0, 10),
+                          ),
                         ],
-                        borderRadius: BorderRadius.circular(10),
-                        color: Colors.white),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        const Image(
-                          image: AssetImage(AppIcons.rent),
-                          width: 30,
+                      ),
+                      child: CustomInput(
+                        controller: searchController,
+                        hint: "Pesquisar propriedades...",
+                        leadingIcon: Icon(
+                          CupertinoIcons.search,
+                          color: secondaryTextColor,
                         ),
-                        Text(element),
-                      ],
+                      ),
                     ),
-                  );
-                }).toList(),
+                    const SizedBox(height: 24),
+
+                    // Quick options
+                    Text(
+                      "Explorar por categoria",
+                      style: TextStyle(
+                        fontSize: isTablet ? 18 : 16,
+                        fontWeight: FontWeight.w600,
+                        color: primaryTextColor,
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+
+                    // Responsive quick option menu
+                    ResponsiveLayout(
+                      mobile: SingleChildScrollView(
+                        scrollDirection: Axis.horizontal,
+                        physics: const BouncingScrollPhysics(),
+                        child: Row(
+                          children: [
+                            buildQuickOption("Arrendar",
+                                CupertinoIcons.house_alt, accentColor),
+                            buildQuickOption(
+                                "Comprar", CupertinoIcons.cart, accentColor),
+                            buildQuickOption(
+                                "Terreno", CupertinoIcons.tree, accentColor),
+                            buildQuickOption(
+                                "Explorar", CupertinoIcons.map, accentColor,
+                                onTap: () => Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (context) =>
+                                            const ExploreView()))),
+                          ],
+                        ),
+                      ),
+                      tablet: Wrap(
+                        spacing: 16,
+                        runSpacing: 16,
+                        children: [
+                          buildQuickOption(
+                              "Arrendar", CupertinoIcons.house_alt, accentColor,
+                              isLarge: true),
+                          buildQuickOption(
+                              "Comprar", CupertinoIcons.cart, accentColor,
+                              isLarge: true),
+                          buildQuickOption(
+                              "Terreno", CupertinoIcons.tree, accentColor,
+                              isLarge: true),
+                          buildQuickOption(
+                              "Explorar", CupertinoIcons.map, accentColor,
+                              isLarge: true,
+                              onTap: () => Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) =>
+                                          const ExploreView()))),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 32),
+
+                    // Featured properties
+                    PropertyListSection(
+                      title: "Propriedades em destaque",
+                      subtitle: "Imóveis escolhidos para você",
+                      properties: properties,
+                      onPropertyTap: _showPropertyDetails,
+                      isFeatured: true,
+                    ),
+
+                    const SizedBox(height: 32),
+
+                    // Recommended properties
+                    PropertyListSection(
+                      title: "Recomendados",
+                      subtitle: "Baseado em suas preferências",
+                      properties: properties,
+                      onPropertyTap: _showPropertyDetails,
+                      isFeatured: false,
+                    ),
+                  ],
+                ),
               ),
-              const SizedBox(
-                height: 30,
-              ),
-              //On demand
-              OfferViewPropertyList(
-                title: "Propriedades em destaque",
-                properties: properties,
-              ),
-              //recommend
-              OfferViewPropertyList(
-                title: "Recomendados",
-                properties: properties,
-                onDemand: false,
-              ),
-            ],
-          ),
-        ),
-      )),
-    );
-  }
-}
-
-class OfferViewPropertyList extends StatefulWidget {
-  const OfferViewPropertyList(
-      {super.key,
-      required this.title,
-      required this.properties,
-      this.onDemand = true});
-
-  final String title;
-  final List<Property> properties;
-  final bool onDemand;
-
-  @override
-  State<OfferViewPropertyList> createState() => _OfferViewPropertyListState();
-}
-
-class _OfferViewPropertyListState extends State<OfferViewPropertyList> {
-  bool isFavorite = false;
-
-  // track favorite state
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Row(
-          children: [
-            Text(
-              widget.title,
-              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
             ),
-            const Spacer(),
-            const Text(
-              "Ver todos",
-              style: TextStyle(fontSize: 14),
+
+            // Bottom spacing
+            SliverToBoxAdapter(
+              child:
+                  SizedBox(height: MediaQuery.of(context).padding.bottom + 16),
             ),
-            const Icon(Icons.chevron_right)
           ],
         ),
-        const SizedBox(
-          height: 10,
-        ),
-        SingleChildScrollView(
-          scrollDirection: Axis.horizontal,
-          child: Row(
-            children: widget.properties.map((element) {
-              // TODO: NEW ELEMENT ADDED, BOTTOM MODAL SHEET
-              return GestureDetector(
-                onTap: () {
-                  showModalBottomSheet(
-                    isScrollControlled: true,
-                    context: context,
-                    shape: const RoundedRectangleBorder(
-                      borderRadius: BorderRadius.only(
-                        topLeft: Radius.circular(30),
-                        topRight: Radius.circular(30),
-                      ),
-                    ),
-                    builder: (context) {
-                      return OfferDetails(
-                        title: element.title,
-                        location: element.location,
-                        price: element.price.toDouble(),
-                        bedrooms: 1,
-                        bathrooms: 3,
-                        parking: true,
-                        description: 'lorem',
-                        assetImagePath: 'assets/images/beach_house.png',
-                      );
-                    },
-                  );
-                },
-                child: Container(
-                  margin: const EdgeInsets.only(
-                      left: 10, right: 10, bottom: 16, top: 5),
-                  padding: const EdgeInsets.only(
-                      bottom: 10, left: 4, right: 4, top: 4),
-                  decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(12),
-                      boxShadow: const [
-                        BoxShadow(
-                            offset: Offset(0, 4),
-                            blurRadius: 10,
-                            color: Colors.black12),
-                        BoxShadow(
-                            offset: Offset(0, 0),
-                            blurRadius: 0,
-                            spreadRadius: 0.5,
-                            color: Colors.black12)
-                      ]),
-                  // height: 810,
-                  constraints: const BoxConstraints(minHeight: 230),
-                  width: 220,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Stack(
-                        children: [
-                          ClipRRect(
-                            borderRadius: BorderRadius.circular(8),
-                            child: Image(
-                              image: AssetImage(
-                                element.type == PropertyType.land
-                                    ? AppImages.land
-                                    : AppImages.beachHouse,
-                              ),
-                              fit: BoxFit.fitWidth,
-                              height: 118,
-                              width: double.maxFinite,
-                            ),
-                          ),
-                          Visibility(
-                            visible: widget.onDemand,
-                            child: const Positioned(
-                              left: 2,
-                              top: 10,
-                              child: Image(
-                                image: AssetImage(AppImages.trustBadge),
-                                width: 40,
-                              ),
-                            ),
-                          ),
-                          StatefulBuilder(builder: (context, setState) {
-                            return Positioned(
-                              bottom: 12,
-                              right: 16,
-                              child: HeartCircleButton(
-                                isFavorite: isFavorite,
-                                onTap: () {
-                                  setState(() {
-                                    isFavorite = !isFavorite;
-                                  });
-                                },
-                              ),
-                            );
-                          }),
-                        ],
-                      ),
-                      Padding(
-                        padding:
-                            const EdgeInsets.only(top: 8, left: 8, right: 8),
-                        child: Row(
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            Container(
-                              width: 7,
-                              height: 7,
-                              decoration: const BoxDecoration(
-                                  shape: BoxShape.circle, color: Colors.green),
-                            ),
-                            const SizedBox(
-                              width: 2,
-                            ),
-                            Text(
-                              element.type == PropertyType.rent
-                                  ? "Arrenda-se"
-                                  : "Terreno",
-                              style: const TextStyle(fontSize: 8),
-                            ),
-                          ],
-                        ),
-                      ),
-                      const SizedBox(
-                        height: 4,
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.only(left: 8, right: 8),
-                        child: RichText(
-                            text: const TextSpan(children: [
-                          TextSpan(
-                              text: "MZN 125.000.00",
-                              style: TextStyle(
-                                  color: Colors.black,
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.bold)),
-                          TextSpan(
-                              text: "/mês",
-                              style: TextStyle(
-                                  color: Colors.black,
-                                  fontSize: 10,
-                                  fontWeight: FontWeight.bold)),
-                        ])),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.only(left: 8, right: 8),
-                        child: Text(element.title,
-                            style: const TextStyle(
-                              color: Colors.black,
-                              fontSize: 10,
-                            )),
-                      ),
-                      const SizedBox(
-                        height: 4,
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.only(left: 8, right: 8),
-                        child: Row(
-                          children: [
-                            const Icon(
-                              Icons.location_on_rounded,
-                              size: 8,
-                            ),
-                            Text(
-                              element.location,
-                              style: const TextStyle(
-                                color: Colors.black,
-                                fontSize: 8,
-                              ),
-                            )
-                          ],
-                        ),
-                      ),
-                      const SizedBox(
-                        height: 6,
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.only(left: 8, right: 8),
-                        child: Wrap(
-                          direction: Axis.horizontal,
-                          spacing: 5,
-                          runSpacing: 5.0,
-                          crossAxisAlignment: WrapCrossAlignment.center,
-                          children: element.attributes.entries.map(
-                            (el) {
-                              return renderPropertyAttribute(el);
-                            },
-                          ).toList(),
-                        ),
-                      )
-                    ],
-                  ),
-                ),
-              );
-            }).toList(),
+      ),
+    );
+  }
+
+  Widget buildQuickOption(String label, IconData icon, Color accentColor,
+      {bool isLarge = false, VoidCallback? onTap}) {
+    final container = Container(
+      margin: const EdgeInsets.only(right: 12),
+      padding: EdgeInsets.symmetric(
+        horizontal: isLarge ? 16 : 14,
+        vertical: isLarge ? 16 : 12,
+      ),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            offset: const Offset(0, 2),
+            blurRadius: 6,
+            color: Colors.black.withOpacity(0.04),
           ),
-        )
-      ],
-    );
-  }
-//TODO: Scroll effect
-}
-
-class HeartCirclePainter extends CustomPainter {
-  final bool isFavorite;
-
-  HeartCirclePainter(this.isFavorite);
-
-  /// Returns a [Path] matching the Material "favorite" icon (24x24 viewport).
-  /// We'll scale it to fit our [size].
-  Path _createFavoritePath(Size size) {
-    // The Material icon is defined for a 24x24 "viewBox".
-    // We scale that path to fit the painter's size.
-    final double scaleX = size.width / 24.0;
-    final double scaleY = size.height / 24.0;
-
-    Path path = Path();
-
-    // M12 21.35
-    path.moveTo(12 * scaleX, 21.35 * scaleY);
-    // L10.55 20.03
-    path.lineTo(10.55 * scaleX, 20.03 * scaleY);
-
-    // C5.4 15.36 2 12.28 2 8.5
-    path.cubicTo(
-      5.4 * scaleX,
-      15.36 * scaleY,
-      2 * scaleX,
-      12.28 * scaleY,
-      2 * scaleX,
-      8.5 * scaleY,
+        ],
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: accentColor.withOpacity(0.1),
+              shape: BoxShape.circle,
+            ),
+            child: Icon(
+              icon,
+              size: isLarge ? 24 : 20,
+              color: accentColor,
+            ),
+          ),
+          const SizedBox(width: 12),
+          Text(
+            label,
+            style: TextStyle(
+              fontSize: isLarge ? 16 : 14,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+        ],
+      ),
     );
 
-    // C2 5.42 4.42 3 7.5 3
-    path.cubicTo(
-      2 * scaleX,
-      5.42 * scaleY,
-      4.42 * scaleX,
-      3 * scaleY,
-      7.5 * scaleX,
-      3 * scaleY,
-    );
-
-    // c1.74 0 3.41.81 4.5 2.09
-    // (heart's top arcs)
-    path.cubicTo(
-      9.24 * scaleX,
-      3 * scaleY,
-      10.91 * scaleX,
-      3.81 * scaleY,
-      12 * scaleX,
-      5.09 * scaleY,
-    );
-    path.cubicTo(
-      13.09 * scaleX,
-      3.81 * scaleY,
-      14.76 * scaleX,
-      3 * scaleY,
-      16.5 * scaleX,
-      3 * scaleY,
-    );
-
-    // C19.58 3 22 5.42 22 8.5
-    path.cubicTo(
-      19.58 * scaleX,
-      3 * scaleY,
-      22 * scaleX,
-      5.42 * scaleY,
-      22 * scaleX,
-      8.5 * scaleY,
-    );
-
-    // c0 3.78-3.4 6.86-8.55 11.54l-1.45 1.31z
-    path.cubicTo(
-      22 * scaleX,
-      12.28 * scaleY,
-      18.6 * scaleX,
-      15.36 * scaleY,
-      13.45 * scaleX,
-      20.04 * scaleY,
-    );
-    path.lineTo(12 * scaleX, 21.35 * scaleY);
-    path.close();
-
-    return path;
-  }
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    // Paints we’ll use
-    final Paint whitePaint = Paint()..color = Colors.white;
-    final Paint redPaint = Paint()..color = Colors.red;
-
-    // Draw a white circle first.
-    double radius = min(size.width / 1.1, size.height / 1.1);
-    final circlePath = Path()
-      ..addOval(Rect.fromCircle(
-        center: Offset(size.width / 2.1, size.height / 2.2),
-        radius: radius,
-      ));
-
-    // Create the heart path, scaled to fill this painter's 36x36 area.
-    Path heartPath = _createFavoritePath(size);
-
-    if (isFavorite) {
-      // 1. Draw the entire circle in white
-      canvas.drawPath(circlePath, whitePaint);
-      // 2. Draw a red heart on top
-      canvas.drawPath(heartPath, redPaint);
-    } else {
-      // Subtract the heart from the white circle to reveal the image behind
-      Path finalPath = Path.combine(
-        PathOperation.difference,
-        circlePath,
-        heartPath,
+    if (onTap != null) {
+      return GestureDetector(
+        onTap: onTap,
+        child: container,
       );
-      canvas.drawPath(finalPath, whitePaint);
+    }
+
+    return container;
+  }
+
+  // Helper method to get image based on property type
+  String _getImageForProperty(Property property) {
+    switch (property.type) {
+      case PropertyType.house:
+        return AppImages.beachHouse;
+      case PropertyType.rent:
+        return AppImages.beachHouse2;
+      case PropertyType.land:
+        return AppImages.land;
+      default:
+        return AppImages.house;
     }
   }
-
-  @override
-  bool shouldRepaint(covariant HeartCirclePainter oldDelegate) {
-    return oldDelegate.isFavorite != isFavorite;
-  }
 }
 
-class HeartCircleButton extends StatelessWidget {
-  final bool isFavorite;
-  final VoidCallback onTap;
+class PropertyListSection extends StatelessWidget {
+  final String title;
+  final String subtitle;
+  final List<Property> properties;
+  final Function(Property) onPropertyTap;
+  final bool isFeatured;
 
-  const HeartCircleButton({
+  const PropertyListSection({
     super.key,
-    required this.isFavorite,
-    required this.onTap,
+    required this.title,
+    required this.subtitle,
+    required this.properties,
+    required this.onPropertyTap,
+    this.isFeatured = true,
   });
 
   @override
   Widget build(BuildContext context) {
+    final accentColor = AppColors.primary;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // Section header
+        Row(
+          children: [
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    subtitle,
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: Colors.grey.shade600,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            TextButton(
+              onPressed: () {},
+              style: TextButton.styleFrom(
+                padding: const EdgeInsets.symmetric(horizontal: 12),
+              ),
+              child: Row(
+                children: [
+                  Text(
+                    "Ver todos",
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w500,
+                      color: accentColor,
+                    ),
+                  ),
+                  Icon(
+                    CupertinoIcons.chevron_right,
+                    size: 16,
+                    color: accentColor,
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 16),
+
+        // Properties list
+        SizedBox(
+          height: 270,
+          child: ListView.builder(
+            scrollDirection: Axis.horizontal,
+            physics: const BouncingScrollPhysics(),
+            itemCount: properties.length,
+            itemBuilder: (context, index) {
+              final property = properties[index];
+              return PropertyCard(
+                property: property,
+                onTap: () => onPropertyTap(property),
+                isFeatured: isFeatured,
+              );
+            },
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class PropertyCard extends StatelessWidget {
+  final Property property;
+  final VoidCallback onTap;
+  final bool isFeatured;
+
+  const PropertyCard({
+    super.key,
+    required this.property,
+    required this.onTap,
+    this.isFeatured = false,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final isRental = property.type == PropertyType.rent;
+    final accentColor = AppColors.primary;
+
     return GestureDetector(
       onTap: onTap,
-      child: CustomPaint(
-        painter: HeartCirclePainter(isFavorite),
-        child: const SizedBox(
-          width: 18,
-          height: 18,
+      child: Container(
+        width: 220,
+        margin: const EdgeInsets.only(right: 16, bottom: 10),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(16),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.06),
+              offset: const Offset(0, 4),
+              blurRadius: 8,
+            ),
+          ],
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Image section
+            Stack(
+              children: [
+                // Property image
+                ClipRRect(
+                  borderRadius:
+                      const BorderRadius.vertical(top: Radius.circular(16)),
+                  child: Image.asset(
+                    _getImagePath(),
+                    width: double.infinity,
+                    height: 140,
+                    fit: BoxFit.cover,
+                  ),
+                ),
+
+                // Featured badge
+                if (isFeatured)
+                  Positioned(
+                    top: 12,
+                    left: 12,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 10, vertical: 6),
+                      decoration: BoxDecoration(
+                        color: Colors.black.withOpacity(0.7),
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            CupertinoIcons.star_fill,
+                            color: Colors.amber,
+                            size: 12,
+                          ),
+                          const SizedBox(width: 4),
+                          const Text(
+                            "Destaque",
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 10,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+
+                // Property type badge
+                Positioned(
+                  top: 12,
+                  right: 12,
+                  child: Container(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                    decoration: BoxDecoration(
+                      color: isRental ? Colors.blue : accentColor,
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: Text(
+                      isRental ? "Aluguel" : "Venda",
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 10,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                ),
+
+                // Favorite button
+                Positioned(
+                  bottom: 12,
+                  right: 12,
+                  child: Container(
+                    padding: const EdgeInsets.all(6),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      shape: BoxShape.circle,
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.1),
+                          blurRadius: 4,
+                          offset: const Offset(0, 2),
+                        ),
+                      ],
+                    ),
+                    child: const Icon(
+                      CupertinoIcons.heart,
+                      size: 16,
+                      color: Colors.red,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+
+            // Details section
+            Padding(
+              padding: const EdgeInsets.all(12),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Price
+                  Row(
+                    children: [
+                      Text(
+                        "MZN ${property.price.toStringAsFixed(0)}",
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: accentColor,
+                        ),
+                      ),
+                      if (isRental)
+                        Text(
+                          "/mês",
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: Colors.grey.shade600,
+                          ),
+                        ),
+                    ],
+                  ),
+                  const SizedBox(height: 6),
+
+                  // Title
+                  Text(
+                    property.title,
+                    style: const TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  const SizedBox(height: 4),
+
+                  // Location
+                  Row(
+                    children: [
+                      Icon(
+                        CupertinoIcons.location_solid,
+                        size: 12,
+                        color: Colors.grey.shade600,
+                      ),
+                      const SizedBox(width: 4),
+                      Expanded(
+                        child: Text(
+                          property.location,
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: Colors.grey.shade600,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+
+                  // Features
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: [
+                      _buildFeature(
+                        CupertinoIcons.bed_double,
+                        "${property.attributes[PropertyAttributeType.room] ?? 0}",
+                      ),
+                      const SizedBox(width: 16),
+                      _buildFeature(
+                        CupertinoIcons.drop,
+                        "${property.attributes[PropertyAttributeType.wc] ?? 0}",
+                      ),
+                      const SizedBox(width: 16),
+                      _buildFeature(
+                        CupertinoIcons.car_detailed,
+                        "${property.attributes[PropertyAttributeType.parking] ?? 0}",
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ],
         ),
       ),
     );
+  }
+
+  Widget _buildFeature(IconData icon, String value) {
+    return Row(
+      children: [
+        Icon(
+          icon,
+          size: 14,
+          color: Colors.grey.shade600,
+        ),
+        const SizedBox(width: 4),
+        Text(
+          value,
+          style: TextStyle(
+            fontSize: 12,
+            color: Colors.grey.shade600,
+          ),
+        ),
+      ],
+    );
+  }
+
+  String _getImagePath() {
+    switch (property.type) {
+      case PropertyType.house:
+        return AppImages.beachHouse;
+      case PropertyType.rent:
+        return AppImages.beachHouse2;
+      case PropertyType.land:
+        return AppImages.land;
+      default:
+        return AppImages.house;
+    }
   }
 }
