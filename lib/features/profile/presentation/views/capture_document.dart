@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:nopin_creative/core/constants/assets.dart';
 import 'package:nopin_creative/features/profile/presentation/views/check_id_document.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 class CaptureDocument extends StatefulWidget {
   const CaptureDocument({super.key, required this.isProfilePicture});
@@ -19,11 +20,27 @@ class _CaptureDocumentState extends State<CaptureDocument> {
   bool _isTakingPicture = false;
   static const _guideBoxWidth = 300.0;
   static const _guideBoxHeight = 200.0;
+  bool _hasCameraPermission = false;
 
   @override
   void initState() {
     super.initState();
-    _initializeCameraFuture = _initializeCamera();
+    _initializeCameraFuture = _checkPermissionAndInitializeCamera();
+  }
+
+  Future<void> _checkPermissionAndInitializeCamera() async {
+    // Check camera permission first
+    final status = await Permission.camera.request();
+
+    setState(() {
+      _hasCameraPermission = status.isGranted;
+    });
+
+    if (!status.isGranted) {
+      return Future.error('Camera permission denied');
+    }
+
+    return _initializeCamera();
   }
 
   Future<void> _initializeCamera() async {
@@ -34,7 +51,11 @@ class _CaptureDocumentState extends State<CaptureDocument> {
       }
 
       final backCamera = cameras.firstWhere(
-        (camera) => camera.lensDirection == (widget.isProfilePicture ? CameraLensDirection.front : CameraLensDirection.back),
+        (camera) =>
+            camera.lensDirection ==
+            (widget.isProfilePicture
+                ? CameraLensDirection.front
+                : CameraLensDirection.back),
         orElse: () => cameras.first,
       );
 
@@ -47,8 +68,7 @@ class _CaptureDocumentState extends State<CaptureDocument> {
       await _controller!.initialize();
       await _controller!.setFlashMode(FlashMode.off);
     } catch (e) {
-      print('Error initializing camera: $e');
-      rethrow;
+      return Future.error('Failed to initialize camera: $e');
     }
   }
 
@@ -78,7 +98,8 @@ class _CaptureDocumentState extends State<CaptureDocument> {
               topRight: Radius.circular(30),
             ),
           ),
-          builder: (context) => CheckCapturedDocument(imagePath: image.path, isProfilePicture:  widget.isProfilePicture),
+          builder: (context) => CheckCapturedDocument(
+              imagePath: image.path, isProfilePicture: widget.isProfilePicture),
         );
 
         // If result is not null, it means user confirmed the image
@@ -88,7 +109,6 @@ class _CaptureDocumentState extends State<CaptureDocument> {
         // Don't pop the CaptureDocument yet - let CheckCapturedDocument handle navigation
       }
     } catch (e) {
-      print('Error taking picture: $e');
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Error capturing image: $e')),
@@ -121,17 +141,15 @@ class _CaptureDocumentState extends State<CaptureDocument> {
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.done) {
                   if (snapshot.hasError) {
-                    return Center(
-                      child: Text(
-                        'Camera Error: ${snapshot.error}',
-                        style: GoogleFonts.poppins(color: Colors.red),
-                      ),
-                    );
+                    return _buildErrorView(snapshot.error.toString());
+                  }
+                  if (!_hasCameraPermission) {
+                    return _buildPermissionDeniedView();
                   }
                   return _buildCameraPreview();
                 }
                 return const Center(
-                  child: CircularProgressIndicator(color: Colors.white),
+                  child: CircularProgressIndicator(color: Colors.grey),
                 );
               },
             ),
@@ -141,10 +159,111 @@ class _CaptureDocumentState extends State<CaptureDocument> {
     );
   }
 
+  Widget _buildErrorView(String error) {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(24.0),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Icon(Icons.error_outline, color: Colors.red, size: 48),
+            const SizedBox(height: 16),
+            Text(
+              'Camera Error',
+              style: GoogleFonts.poppins(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: Colors.red,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              error,
+              textAlign: TextAlign.center,
+              style: GoogleFonts.poppins(
+                color: Colors.black87,
+              ),
+            ),
+            const SizedBox(height: 24),
+            ElevatedButton(
+              onPressed: () {
+                setState(() {
+                  _initializeCameraFuture =
+                      _checkPermissionAndInitializeCamera();
+                });
+              },
+              style: ElevatedButton.styleFrom(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(30),
+                ),
+              ),
+              child: Text(
+                'Try Again',
+                style: GoogleFonts.poppins(
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildPermissionDeniedView() {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(24.0),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Icon(Icons.no_photography, color: Colors.amber, size: 48),
+            const SizedBox(height: 16),
+            Text(
+              'Camera Permission Required',
+              style: GoogleFonts.poppins(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'This feature requires camera access to capture documents. Please grant permission in your device settings.',
+              textAlign: TextAlign.center,
+              style: GoogleFonts.poppins(
+                color: Colors.black87,
+              ),
+            ),
+            const SizedBox(height: 24),
+            ElevatedButton(
+              onPressed: () async {
+                await openAppSettings();
+              },
+              style: ElevatedButton.styleFrom(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(30),
+                ),
+              ),
+              child: Text(
+                'Open Settings',
+                style: GoogleFonts.poppins(
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   Widget _buildGuideOverlay() {
     return Stack(
       children: [
-
         Center(
           child: SizedBox(
             width: widget.isProfilePicture ? 300 : _guideBoxWidth,
@@ -154,7 +273,8 @@ class _CaptureDocumentState extends State<CaptureDocument> {
                 Container(
                   decoration: BoxDecoration(
                     color: Colors.black12,
-                    borderRadius: BorderRadius.circular(widget.isProfilePicture ? 300 : 20),
+                    borderRadius: BorderRadius.circular(
+                        widget.isProfilePicture ? 300 : 20),
                   ),
                 ),
                 const Positioned.fill(
