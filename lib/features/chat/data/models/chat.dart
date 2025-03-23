@@ -1,19 +1,28 @@
-
 import 'package:nopin_creative/features/home/data/models/property.dart';
 
-class Chat{
+class Chat {
   final List<String> users;
   final List<Message> messages;
   final Property fromProperty;
-  const Chat({required this.users, required this.messages, required this.fromProperty, });
+  const Chat({
+    required this.users,
+    required this.messages,
+    required this.fromProperty,
+  });
 }
 
 class Message {
   final String from;
   final String body;
   final DateTime time;
+  final bool includesProperty;
 
-  const Message({required this.from, required this.body, required this.time});
+  const Message({
+    required this.from,
+    required this.body,
+    required this.time,
+    this.includesProperty = false,
+  });
 }
 
 final List<Chat> dummyChats = [
@@ -35,12 +44,14 @@ final List<Chat> dummyChats = [
         from: "user_1",
         body: "Sim, amanhã às 15h estaria ótimo!",
         time: DateTime.now().subtract(Duration(minutes: 2)),
+        includesProperty: true,
       ),
     ],
   ),
   Chat(
     users: ["user_3", "user_1"],
-    fromProperty: properties[1], // Referring to the second property in your list
+    fromProperty:
+        properties[1], // Referring to the second property in your list
     messages: [
       Message(
         from: "user_1",
@@ -61,6 +72,7 @@ final List<Chat> dummyChats = [
         from: "user_4",
         body: "Claro, vou enviar agora mesmo.",
         time: DateTime.now().subtract(Duration(minutes: 20)),
+        includesProperty: true,
       ),
     ],
   ),
