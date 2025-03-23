@@ -7,7 +7,7 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:nopin_creative/core/constants/assets.dart';
 import 'package:nopin_creative/core/shared/widgets/property_attribure.dart';
 import 'package:nopin_creative/features/home/data/models/property.dart';
-import 'package:permission_handler/permission_handler.dart'; // Added import
+import 'package:permission_handler/permission_handler.dart';
 
 class ExploreView extends StatefulWidget {
   const ExploreView({super.key});
@@ -17,7 +17,7 @@ class ExploreView extends StatefulWidget {
 }
 
 class _ExploreViewState extends State<ExploreView> {
-  final LatLng _initialCameraPosition = const LatLng(-25.955582410694454, 32.59946372579154);
+  late LatLng _initialCameraPosition;
   bool _isExpandedCard = false;
   Property? _selectedProperty;
   bool _isContainerVisible = false;
@@ -26,79 +26,293 @@ class _ExploreViewState extends State<ExploreView> {
   bool _isPriceFilterApplied = false;
   double _minPrice = 0;
   double _maxPrice = 12000000;
-  bool _hasLocationPermission = false; // Track permission status
+  bool _hasLocationPermission = false;
+  GoogleMapController? _mapController;
 
   @override
   void initState() {
     super.initState();
-    _selectedProperty = properties[0];
-    _isContainerVisible = true;
+    _selectedProperty = properties.isNotEmpty ? properties[0] : null;
+    _isContainerVisible = _selectedProperty != null;
     controller = TextEditingController();
-    _requestLocationPermission(); // Request permission on init
-  }
-
-  // Request location permission
-  Future<void> _requestLocationPermission() async {
-    final status = await Permission.location.request();
-    setState(() {
-      _hasLocationPermission = status.isGranted;
-    });
-    if (!status.isGranted) {
-      // Optionally show a dialog or snackbar if permission is denied
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Location permission is required to display the map.'),
-          ),
-        );
-      }
-    }
-  }
-
-  Set<Marker> _createMarkers() {
-    var filteredProperties = properties.where((property) {
-      bool matchesType = _activeFilter == null ||
-          (_activeFilter == 'Comprar' && property.type == PropertyType.house) ||
-          (_activeFilter == 'Arrendar' && property.type == PropertyType.rent) ||
-          (_activeFilter == 'Terreno' && property.type == PropertyType.land);
-      bool matchesPrice = property.price >= _minPrice && property.price <= _maxPrice;
-      return matchesType && matchesPrice;
-    }).toList();
-
-    return filteredProperties.map((property) {
-      return Marker(
-        markerId: MarkerId(property.id),
-        position: property.position,
-        icon: BitmapDescriptor.defaultMarkerWithHue(_getHueForPropertyType(property.type)),
-        onTap: () {
-          setState(() {
-            _selectedProperty = property;
-            _isExpandedCard = false;
-            _isContainerVisible = true;
-          });
-        },
-      );
-    }).toSet();
-  }
-
-  double _getHueForPropertyType(PropertyType type) {
-    switch (type) {
-      case PropertyType.land:
-        return BitmapDescriptor.hueGreen;
-      case PropertyType.rent:
-        return BitmapDescriptor.hueBlue;
-      case PropertyType.house:
-        return BitmapDescriptor.hueRed;
-    }
+    _initialCameraPosition = properties.isNotEmpty
+        ? properties.first.position
+        : const LatLng(-25.966667, 32.583333); // Default to Maputo
+    _requestLocationPermission();
   }
 
   @override
   void dispose() {
     controller.dispose();
+    _mapController?.dispose();
     super.dispose();
   }
 
-  void _showPriceFilterBottomSheet(BuildContext context) {
+  // Request location permission
+  Future<void> _requestLocationPermission() async {
+    final status = await Permission.location.request();
+    if (mounted) {
+      setState(() {
+        _hasLocationPermission = status.isGranted;
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final double screenHeight = MediaQuery.of(context).size.height;
+    final double screenWidth = MediaQuery.of(context).size.width;
+
+    return Scaffold(
+      body: Stack(
+        children: [
+          // Map takes the entire screen
+          SizedBox.expand(
+            child: GoogleMap(
+              initialCameraPosition: CameraPosition(
+                target: _initialCameraPosition,
+                zoom: 12,
+              ),
+              myLocationEnabled: _hasLocationPermission,
+              myLocationButtonEnabled: _hasLocationPermission,
+              zoomControlsEnabled: false,
+              mapType: MapType.normal,
+              markers: _createMarkers(),
+              onMapCreated: (controller) {
+                _mapController = controller;
+              },
+            ),
+          ),
+
+          // Search bar at the top
+          Positioned(
+            top: 0,
+            left: 0,
+            right: 0,
+            child: SafeArea(
+              child: Padding(
+                padding: EdgeInsets.all(screenWidth * 0.04),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    // Back button
+                    GestureDetector(
+                      onTap: () => Navigator.of(context).pop(),
+                      child: Container(
+                        padding: EdgeInsets.all(screenWidth * 0.03),
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: Colors.white.withOpacity(0.95),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black12,
+                              blurRadius: 8,
+                              offset: const Offset(2, 2),
+                            ),
+                          ],
+                        ),
+                        child: Icon(
+                          Icons.chevron_left_outlined,
+                          size: screenWidth * 0.07,
+                          color: Colors.black87,
+                        ),
+                      ),
+                    ),
+                    SizedBox(width: screenWidth * 0.03),
+
+                    // Search bar
+                    Expanded(
+                      child: Container(
+                        height: screenHeight * 0.06,
+                        decoration: BoxDecoration(
+                          color: Colors.white.withOpacity(0.9),
+                          borderRadius: BorderRadius.circular(30.0),
+                          border:
+                              Border.all(color: Colors.white.withOpacity(0.5)),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.1),
+                              blurRadius: 4,
+                              offset: const Offset(0, 2),
+                            ),
+                          ],
+                        ),
+                        child: TextField(
+                          controller: controller,
+                          style: GoogleFonts.poppins(
+                            fontSize: screenWidth * 0.04,
+                            color: Colors.black87,
+                          ),
+                          decoration: InputDecoration(
+                            prefixIcon: Icon(
+                              Icons.search,
+                              color: Colors.black87,
+                              size: screenWidth * 0.05,
+                            ),
+                            hintText: 'Procurar propriedades...',
+                            hintStyle: GoogleFonts.poppins(
+                              color: Colors.grey[600],
+                              fontSize: screenWidth * 0.04,
+                            ),
+                            border: InputBorder.none,
+                            contentPadding: EdgeInsets.symmetric(
+                              vertical: screenHeight * 0.015,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+
+          // Filter buttons
+          Positioned(
+            top: MediaQuery.of(context).padding.top + screenHeight * 0.09,
+            left: 0,
+            right: 0,
+            child: SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.04),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  _buildFilterButton(
+                    'Comprar',
+                    _activeFilter == 'Comprar',
+                    () => setState(() {
+                      _activeFilter =
+                          _activeFilter == 'Comprar' ? null : 'Comprar';
+                    }),
+                    screenWidth,
+                  ),
+                  SizedBox(width: screenWidth * 0.02),
+                  _buildFilterButton(
+                    'Arrendar',
+                    _activeFilter == 'Arrendar',
+                    () => setState(() {
+                      _activeFilter =
+                          _activeFilter == 'Arrendar' ? null : 'Arrendar';
+                    }),
+                    screenWidth,
+                  ),
+                  SizedBox(width: screenWidth * 0.02),
+                  _buildFilterButton(
+                    'Terreno',
+                    _activeFilter == 'Terreno',
+                    () => setState(() {
+                      _activeFilter =
+                          _activeFilter == 'Terreno' ? null : 'Terreno';
+                    }),
+                    screenWidth,
+                  ),
+                  SizedBox(width: screenWidth * 0.02),
+                  _buildPriceFilterButton(screenWidth),
+                ],
+              ),
+            ),
+          ),
+
+          // Property details card
+          AnimatedPositioned(
+            duration: const Duration(milliseconds: 300),
+            curve: Curves.easeInOut,
+            bottom:
+                _isContainerVisible ? screenHeight * 0.02 : -screenHeight * 0.4,
+            left: screenWidth * 0.04,
+            right: screenWidth * 0.04,
+            height: _isExpandedCard ? screenHeight * 0.75 : screenHeight * 0.18,
+            child: AnimatedContainer(
+              duration: const Duration(milliseconds: 300),
+              curve: Curves.easeInOut,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(_isExpandedCard ? 30 : 20),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black26,
+                    blurRadius: 15,
+                    offset: const Offset(0, 5),
+                    spreadRadius: 1,
+                  ),
+                ],
+              ),
+              child: _isContainerVisible && _selectedProperty != null
+                  ? _isExpandedCard
+                      ? _buildExpandedCardContent(_selectedProperty!)
+                      : _buildCollapsedCardContent(_selectedProperty!)
+                  : const SizedBox.shrink(),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildFilterButton(
+      String label, bool isActive, VoidCallback onPressed, double screenWidth) {
+    return GestureDetector(
+      onTap: onPressed,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        padding: EdgeInsets.symmetric(
+          horizontal: screenWidth * 0.045,
+          vertical: screenWidth * 0.025,
+        ),
+        decoration: BoxDecoration(
+          color: isActive ? Colors.black87 : Colors.white.withOpacity(0.9),
+          borderRadius: BorderRadius.circular(20.0),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.1),
+              blurRadius: 6,
+              offset: const Offset(0, 2),
+            ),
+          ],
+        ),
+        child: Text(
+          label,
+          style: GoogleFonts.poppins(
+            color: isActive ? Colors.white : Colors.black87,
+            fontSize: screenWidth * 0.035,
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildPriceFilterButton(double screenWidth) {
+    return GestureDetector(
+      onTap: _showPriceFilterBottomSheet,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        padding: EdgeInsets.all(screenWidth * 0.025),
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          color: _isPriceFilterApplied
+              ? Colors.black87
+              : Colors.white.withOpacity(0.9),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.1),
+              blurRadius: 6,
+              offset: const Offset(0, 2),
+            ),
+          ],
+        ),
+        child: Icon(
+          Icons.tune,
+          size: screenWidth * 0.05,
+          color: _isPriceFilterApplied ? Colors.white : Colors.black87,
+        ),
+      ),
+    );
+  }
+
+  void _showPriceFilterBottomSheet() {
     double tempMinPrice = _minPrice;
     double tempMaxPrice = _maxPrice;
 
@@ -110,19 +324,25 @@ class _ExploreViewState extends State<ExploreView> {
       ),
       builder: (context) => StatefulBuilder(
         builder: (context, setModalState) => Padding(
-          padding: EdgeInsets.all(MediaQuery.of(context).size.width * 0.04),
+          padding: EdgeInsets.all(MediaQuery.of(context).size.width * 0.05),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
                 'Filtrar por Preço',
-                style: GoogleFonts.poppins(fontSize: 20, fontWeight: FontWeight.bold),
+                style: GoogleFonts.poppins(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
               SizedBox(height: MediaQuery.of(context).size.height * 0.02),
               Text(
                 'Intervalo de Preço (MZN)',
-                style: GoogleFonts.poppins(fontSize: 16, color: Colors.grey[700]),
+                style: GoogleFonts.poppins(
+                  fontSize: 16,
+                  color: Colors.grey[700],
+                ),
               ),
               RangeSlider(
                 values: RangeValues(tempMinPrice, tempMaxPrice),
@@ -157,8 +377,12 @@ class _ExploreViewState extends State<ExploreView> {
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.black87,
-                        minimumSize: Size.fromHeight(MediaQuery.of(context).size.height * 0.064),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(25)),
+                        minimumSize: Size.fromHeight(
+                          MediaQuery.of(context).size.height * 0.064,
+                        ),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(25),
+                        ),
                       ),
                       child: Text(
                         'Aplicar',
@@ -182,7 +406,10 @@ class _ExploreViewState extends State<ExploreView> {
                     },
                     child: Text(
                       'Limpar',
-                      style: GoogleFonts.poppins(fontSize: 14, color: Colors.black87),
+                      style: GoogleFonts.poppins(
+                        fontSize: 14,
+                        color: Colors.black87,
+                      ),
                     ),
                   ),
                 ],
@@ -194,229 +421,83 @@ class _ExploreViewState extends State<ExploreView> {
     );
   }
 
-  @override
-  Widget build(BuildContext context) {
-    final double screenHeight = MediaQuery.of(context).size.height;
-    final double screenWidth = MediaQuery.of(context).size.width;
+  Set<Marker> _createMarkers() {
+    if (properties.isEmpty) return {};
 
-    return Scaffold(
-      body: Stack(
-        children: [
-          SizedBox.expand(
-            child: FutureBuilder<Set<Marker>>(
-              future: _buildMarkersWithIcons(),
-              builder: (context, snapshot) {
-                Set<Marker> markers = snapshot.data ?? _createMarkers();
-                return GoogleMap(
-                  mapType: MapType.normal,
-                  zoomControlsEnabled: false,
-                  initialCameraPosition: CameraPosition(target: _initialCameraPosition, zoom: 12),
-                  markers: markers,
-                  myLocationEnabled: _hasLocationPermission, // Enable "My Location" if permitted
-                  myLocationButtonEnabled: _hasLocationPermission, // Show button if permitted
-                  onMapCreated: (GoogleMapController controller) {
-                    print("Map created successfully!");
-                  },
-                );
-              },
-            ),
-          ),
-          Positioned(
-            top: 0,
-            left: 0,
-            right: 0,
-            child: SafeArea(
-              child: Padding(
-                padding: EdgeInsets.all(screenWidth * 0.04),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    GestureDetector(
-                      onTap: () => Navigator.of(context).pop(),
-                      child: Container(
-                        padding: EdgeInsets.all(screenWidth * 0.03),
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: Colors.white.withValues(alpha: 0.95),
-                          boxShadow: const [
-                            BoxShadow(color: Colors.black12, blurRadius: 8, offset: Offset(2, 2)),
-                            BoxShadow(color: Colors.white70, blurRadius: 8, offset: Offset(-2, -2)),
-                          ],
-                        ),
-                        child: Icon(Icons.chevron_left_outlined, size: screenWidth * 0.07, color: Colors.black87),
-                      ),
-                    ),
-                    SizedBox(width: screenWidth * 0.03),
-                    Expanded(
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(30.0),
-                        child: BackdropFilter(
-                          filter: ImageFilter.blur(sigmaX: 10.0, sigmaY: 10.0),
-                          child: Container(
-                            height: screenHeight * 0.06,
-                            alignment: Alignment.center,
-                            decoration: BoxDecoration(
-                              color: Colors.white.withValues(alpha: 0.3),
-                              borderRadius: BorderRadius.circular(30.0),
-                              border: Border.all(color: Colors.white.withValues(alpha: 0.5)),
-                            ),
-                            child: TextField(
-                              controller: controller,
-                              style: GoogleFonts.poppins(fontSize: screenWidth * 0.04, color: Colors.black87),
-                              decoration: InputDecoration(
-                                prefixIcon: Padding(
-                                  padding: EdgeInsets.all(screenWidth * 0.03),
-                                  child: Image.asset(AppIcons.search, color: Colors.black87, width: screenWidth * 0.05, height: screenWidth * 0.05),
-                                ),
-                                hintText: 'Procurar propriedades...',
-                                hintStyle: GoogleFonts.poppins(color: Colors.grey[600], fontSize: screenWidth * 0.04),
-                                border: InputBorder.none,
-                                contentPadding: EdgeInsets.symmetric(vertical: screenHeight * 0.015),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
-          Positioned(
-            top: MediaQuery.of(context).padding.top + screenHeight * 0.1,
-            left: 0,
-            right: 0,
-            child: SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.04),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  FilterButton(
-                    label: 'Comprar',
-                    isActive: _activeFilter == 'Comprar',
-                    onPressed: () => setState(() {
-                      _activeFilter = _activeFilter == 'Comprar' ? null : 'Comprar';
-                    }),
-                  ),
-                  SizedBox(width: screenWidth * 0.015),
-                  FilterButton(
-                    label: 'Arrendar',
-                    isActive: _activeFilter == 'Arrendar',
-                    onPressed: () => setState(() {
-                      _activeFilter = _activeFilter == 'Arrendar' ? null : 'Arrendar';
-                    }),
-                  ),
-                  SizedBox(width: screenWidth * 0.02),
-                  FilterButton(
-                    label: 'Terreno',
-                    isActive: _activeFilter == 'Terreno',
-                    onPressed: () => setState(() {
-                      _activeFilter = _activeFilter == 'Terreno' ? null : 'Terreno';
-                    }),
-                  ),
-                  SizedBox(width: screenWidth * 0.02),
-                  InkWell(
-                    onTap: () => _showPriceFilterBottomSheet(context),
-                    child: AnimatedContainer(
-                      duration: const Duration(milliseconds: 200),
-                      padding: EdgeInsets.all(screenWidth * 0.025),
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: _isPriceFilterApplied ? Colors.black87 : Colors.white.withValues(alpha: 0.95),
-                        boxShadow: [
-                          BoxShadow(color: Colors.black.withValues(alpha: 0.1), blurRadius: 6, offset: const Offset(0, 2)),
-                        ],
-                      ),
-                      child: Icon(
-                        Icons.tune,
-                        size: screenWidth * 0.05,
-                        color: _isPriceFilterApplied ? Colors.white : Colors.black87,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-          AnimatedPositioned(
-            duration: const Duration(milliseconds: 300),
-            curve: Curves.easeInOut,
-            bottom: _isContainerVisible ? screenHeight * 0.02 : -screenHeight * 0.4,
-            left: screenWidth * 0.02,
-            right: screenWidth * 0.02,
-            height: _isExpandedCard ? screenHeight * 0.8 : screenHeight * 0.16,
-            child: AnimatedContainer(
-              duration: const Duration(milliseconds: 300),
-              curve: Curves.easeInOut,
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(_isExpandedCard ? 30 : 20),
-                boxShadow: const [
-                  BoxShadow(color: Colors.black12, blurRadius: 3, offset: Offset(0, 0), spreadRadius: 2),
-                ],
-              ),
-              child: _isContainerVisible
-                  ? _isExpandedCard
-                  ? buildExpandedCardContent(_selectedProperty!)
-                  : buildCollapsedCardContent(_selectedProperty!)
-                  : const SizedBox.shrink(),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Future<Set<Marker>> _buildMarkersWithIcons() async {
-    Set<Marker> markers = {};
     var filteredProperties = properties.where((property) {
       bool matchesType = _activeFilter == null ||
           (_activeFilter == 'Comprar' && property.type == PropertyType.house) ||
           (_activeFilter == 'Arrendar' && property.type == PropertyType.rent) ||
           (_activeFilter == 'Terreno' && property.type == PropertyType.land);
-      bool matchesPrice = property.price >= _minPrice && property.price <= _maxPrice;
+      bool matchesPrice =
+          property.price >= _minPrice && property.price <= _maxPrice;
       return matchesType && matchesPrice;
     }).toList();
 
-    for (var property in filteredProperties) {
-      BitmapDescriptor customIcon = await BitmapDescriptor.asset(
-        const ImageConfiguration(size: Size(48, 48)),
-        AppIcons.locationPin,
+    // Limit to 15 properties to prevent rendering issues
+    filteredProperties = filteredProperties.take(15).toList();
+
+    return filteredProperties.map((property) {
+      return Marker(
+        markerId: MarkerId(property.id),
+        position: property.position,
+        icon: BitmapDescriptor.defaultMarkerWithHue(
+            _getHueForPropertyType(property.type)),
+        onTap: () {
+          setState(() {
+            _selectedProperty = property;
+            _isExpandedCard = false;
+            _isContainerVisible = true;
+          });
+        },
       );
-      markers.add(
-        Marker(
-          markerId: MarkerId(property.id),
-          icon: customIcon,
-          position: property.position,
-          onTap: () {
-            setState(() {
-              _selectedProperty = property;
-              _isExpandedCard = false;
-              _isContainerVisible = true;
-            });
-          },
-        ),
-      );
-    }
-    return markers;
+    }).toSet();
   }
 
-  Widget buildCollapsedCardContent(Property property) {
+  double _getHueForPropertyType(PropertyType type) {
+    switch (type) {
+      case PropertyType.land:
+        return BitmapDescriptor.hueGreen;
+      case PropertyType.rent:
+        return BitmapDescriptor.hueBlue;
+      case PropertyType.house:
+        return BitmapDescriptor.hueRed;
+    }
+  }
+
+  String _getImageForProperty(Property property) {
+    switch (property.type) {
+      case PropertyType.house:
+        return AppImages.beachHouse;
+      case PropertyType.rent:
+        return AppImages.beachHouse2;
+      case PropertyType.land:
+        return AppImages.land;
+      default:
+        return AppImages.house;
+    }
+  }
+
+  Widget _buildCollapsedCardContent(Property property) {
     final double screenWidth = MediaQuery.of(context).size.width;
+
     return GestureDetector(
       onTap: () => setState(() => _isExpandedCard = true),
       child: Row(
         children: [
           Padding(
-            padding: const EdgeInsets.all(4.0),
+            padding: const EdgeInsets.all(12.0),
             child: ClipRRect(
               borderRadius: BorderRadius.circular(16.0),
-              child: Image.asset(AppImages.beachHouse, width: screenWidth * 0.35, height: double.maxFinite, fit: BoxFit.cover),
+              child: Image.asset(
+                _getImageForProperty(property),
+                width: screenWidth * 0.28,
+                height: double.infinity,
+                fit: BoxFit.cover,
+              ),
             ),
           ),
-          SizedBox(width: screenWidth * 0.03),
+          SizedBox(width: screenWidth * 0.02),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -447,24 +528,75 @@ class _ExploreViewState extends State<ExploreView> {
                 SizedBox(height: screenWidth * 0.015),
                 Row(
                   children: [
-                    Icon(Icons.location_on_rounded, size: screenWidth * 0.035, color: Colors.grey[600]),
+                    Icon(
+                      Icons.location_on_rounded,
+                      size: screenWidth * 0.035,
+                      color: Colors.grey[600],
+                    ),
                     SizedBox(width: screenWidth * 0.01),
                     Expanded(
                       child: Text(
                         property.location,
-                        style: GoogleFonts.poppins(color: Colors.grey[700], fontSize: screenWidth * 0.03),
+                        style: GoogleFonts.poppins(
+                          color: Colors.grey[700],
+                          fontSize: screenWidth * 0.03,
+                        ),
                         overflow: TextOverflow.ellipsis,
                       ),
                     ),
                   ],
                 ),
                 SizedBox(height: screenWidth * 0.02),
-                Wrap(
-                  spacing: screenWidth * 0.02,
-                  runSpacing: screenWidth * 0.01,
-                  children: property.attributes.entries.take(3).map((el) => renderPropertyAttribute(el, size: 1.2)).toList(),
-                ),
+                if (property.attributes.isNotEmpty)
+                  Wrap(
+                    spacing: screenWidth * 0.02,
+                    runSpacing: screenWidth * 0.01,
+                    children: property.attributes.entries
+                        .take(3)
+                        .map((entry) =>
+                            _buildSmallAttributeChip(entry, screenWidth))
+                        .toList(),
+                  ),
               ],
+            ),
+          ),
+          IconButton(
+            icon: Icon(
+              Icons.keyboard_arrow_up,
+              color: Colors.black87,
+              size: screenWidth * 0.06,
+            ),
+            onPressed: () => setState(() => _isExpandedCard = true),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSmallAttributeChip(
+      MapEntry<PropertyAttributeType, int> entry, double screenWidth) {
+    return Container(
+      padding: EdgeInsets.symmetric(
+        horizontal: screenWidth * 0.02,
+        vertical: screenWidth * 0.01,
+      ),
+      decoration: BoxDecoration(
+        color: Colors.grey[200],
+        borderRadius: BorderRadius.circular(4),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(
+            _getIconForAttribute(entry.key),
+            size: screenWidth * 0.035,
+            color: Colors.black87,
+          ),
+          SizedBox(width: screenWidth * 0.01),
+          Text(
+            '${entry.value}',
+            style: GoogleFonts.poppins(
+              fontSize: screenWidth * 0.03,
             ),
           ),
         ],
@@ -472,17 +604,42 @@ class _ExploreViewState extends State<ExploreView> {
     );
   }
 
-  Widget buildExpandedCardContent(Property property) {
+  IconData _getIconForAttribute(PropertyAttributeType type) {
+    switch (type) {
+      case PropertyAttributeType.room:
+        return Icons.bed;
+      case PropertyAttributeType.wc:
+        return Icons.bathroom;
+      case PropertyAttributeType.pool:
+        return Icons.pool;
+      case PropertyAttributeType.parking:
+        return Icons.directions_car;
+      case PropertyAttributeType.width:
+        return Icons.width_normal;
+      case PropertyAttributeType.length:
+        return Icons.straighten;
+    }
+  }
+
+  Widget _buildExpandedCardContent(Property property) {
     final double screenWidth = MediaQuery.of(context).size.width;
+
     return SingleChildScrollView(
+      physics: const BouncingScrollPhysics(),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Stack(
             children: [
               ClipRRect(
-                borderRadius: const BorderRadius.vertical(top: Radius.circular(20.0)),
-                child: Image.asset(AppImages.beachHouse, width: double.infinity, height: screenWidth * 0.6, fit: BoxFit.cover),
+                borderRadius:
+                    const BorderRadius.vertical(top: Radius.circular(30.0)),
+                child: Image.asset(
+                  _getImageForProperty(property),
+                  width: double.infinity,
+                  height: screenWidth * 0.6,
+                  fit: BoxFit.cover,
+                ),
               ),
               Positioned(
                 top: screenWidth * 0.04,
@@ -491,15 +648,22 @@ class _ExploreViewState extends State<ExploreView> {
                   onTap: () => setState(() => _isExpandedCard = false),
                   child: Container(
                     padding: EdgeInsets.all(screenWidth * 0.02),
-                    decoration: const BoxDecoration(color: Colors.black54, shape: BoxShape.circle),
-                    child: Icon(Icons.close, color: Colors.white, size: screenWidth * 0.05),
+                    decoration: const BoxDecoration(
+                      color: Colors.black54,
+                      shape: BoxShape.circle,
+                    ),
+                    child: Icon(
+                      Icons.close,
+                      color: Colors.white,
+                      size: screenWidth * 0.05,
+                    ),
                   ),
                 ),
               ),
             ],
           ),
           Padding(
-            padding: EdgeInsets.all(screenWidth * 0.04),
+            padding: EdgeInsets.all(screenWidth * 0.05),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -508,12 +672,18 @@ class _ExploreViewState extends State<ExploreView> {
                     Container(
                       width: screenWidth * 0.02,
                       height: screenWidth * 0.02,
-                      decoration: const BoxDecoration(shape: BoxShape.circle, color: Colors.green),
+                      decoration: const BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: Colors.green,
+                      ),
                     ),
                     SizedBox(width: screenWidth * 0.015),
                     Text(
-                      property.type == PropertyType.rent ? "Arrenda-se" : "À Venda",
-                      style: GoogleFonts.poppins(fontSize: screenWidth * 0.035, color: Colors.black87),
+                      _getPropertyTypeLabel(property.type),
+                      style: GoogleFonts.poppins(
+                        fontSize: screenWidth * 0.035,
+                        color: Colors.black87,
+                      ),
                     ),
                   ],
                 ),
@@ -525,7 +695,7 @@ class _ExploreViewState extends State<ExploreView> {
                         text: "MZN ${property.price.toStringAsFixed(0)}",
                         style: GoogleFonts.poppins(
                           color: Colors.black,
-                          fontSize: screenWidth * 0.06,
+                          fontSize: screenWidth * 0.055,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
@@ -533,7 +703,7 @@ class _ExploreViewState extends State<ExploreView> {
                         text: property.type == PropertyType.rent ? "/mês" : "",
                         style: GoogleFonts.poppins(
                           color: Colors.black54,
-                          fontSize: screenWidth * 0.04,
+                          fontSize: screenWidth * 0.035,
                           fontWeight: FontWeight.w500,
                         ),
                       ),
@@ -543,12 +713,19 @@ class _ExploreViewState extends State<ExploreView> {
                 SizedBox(height: screenWidth * 0.03),
                 Row(
                   children: [
-                    Icon(Icons.location_on_rounded, size: screenWidth * 0.04, color: Colors.grey[600]),
+                    Icon(
+                      Icons.location_on_rounded,
+                      size: screenWidth * 0.04,
+                      color: Colors.grey[600],
+                    ),
                     SizedBox(width: screenWidth * 0.015),
                     Expanded(
                       child: Text(
                         property.location,
-                        style: GoogleFonts.poppins(color: Colors.grey[700], fontSize: screenWidth * 0.035),
+                        style: GoogleFonts.poppins(
+                          color: Colors.grey[700],
+                          fontSize: screenWidth * 0.035,
+                        ),
                       ),
                     ),
                   ],
@@ -557,12 +734,17 @@ class _ExploreViewState extends State<ExploreView> {
                 Wrap(
                   spacing: screenWidth * 0.03,
                   runSpacing: screenWidth * 0.02,
-                  children: property.attributes.entries.map((el) => renderPropertyAttribute(el, size: 1.4)).toList(),
+                  children: property.attributes.entries
+                      .map((entry) => _buildAttributeChip(entry, screenWidth))
+                      .toList(),
                 ),
                 SizedBox(height: screenWidth * 0.04),
                 Text(
                   property.description,
-                  style: GoogleFonts.poppins(color: Colors.black87, fontSize: screenWidth * 0.035),
+                  style: GoogleFonts.poppins(
+                    color: Colors.black87,
+                    fontSize: screenWidth * 0.035,
+                  ),
                 ),
                 SizedBox(height: screenWidth * 0.06),
                 Row(
@@ -573,10 +755,16 @@ class _ExploreViewState extends State<ExploreView> {
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.black87,
                           minimumSize: Size(0, screenWidth * 0.12),
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(25)),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(25),
+                          ),
                           elevation: 5,
                         ),
-                        icon: Icon(Icons.alternate_email, color: Colors.white, size: screenWidth * 0.05),
+                        icon: Icon(
+                          Icons.message,
+                          color: Colors.white,
+                          size: screenWidth * 0.05,
+                        ),
                         label: Text(
                           "Mensagem",
                           style: GoogleFonts.poppins(
@@ -594,10 +782,16 @@ class _ExploreViewState extends State<ExploreView> {
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.white,
                           minimumSize: Size(0, screenWidth * 0.12),
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(25)),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(25),
+                          ),
                           elevation: 5,
                         ),
-                        icon: Icon(Icons.call, color: Colors.black87, size: screenWidth * 0.05),
+                        icon: Icon(
+                          Icons.call,
+                          color: Colors.black87,
+                          size: screenWidth * 0.05,
+                        ),
                         label: Text(
                           "Contactar",
                           style: GoogleFonts.poppins(
@@ -617,44 +811,47 @@ class _ExploreViewState extends State<ExploreView> {
       ),
     );
   }
-}
 
-class FilterButton extends StatelessWidget {
-  final String label;
-  final bool isActive;
-  final VoidCallback onPressed;
-
-  const FilterButton({
-    required this.label,
-    required this.isActive,
-    required this.onPressed,
-    Key? key,
-  }) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    final double screenWidth = MediaQuery.of(context).size.width;
-    return GestureDetector(
-      onTap: onPressed,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
-        padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.045, vertical: screenWidth * 0.025),
-        decoration: BoxDecoration(
-          color: isActive ? Colors.black87 : Colors.white.withValues(alpha: 0.9),
-          borderRadius: BorderRadius.circular(20.0),
-          boxShadow: [
-            BoxShadow(color: Colors.black.withValues(alpha: 0.1), blurRadius: 6, offset: const Offset(0, 2)),
-          ],
-        ),
-        child: Text(
-          label,
-          style: GoogleFonts.poppins(
-            color: isActive ? Colors.white : Colors.black87,
-            fontSize: screenWidth * 0.035,
-            fontWeight: FontWeight.w500,
+  Widget _buildAttributeChip(
+      MapEntry<PropertyAttributeType, int> entry, double screenWidth) {
+    return Container(
+      padding: EdgeInsets.symmetric(
+        horizontal: screenWidth * 0.03,
+        vertical: screenWidth * 0.02,
+      ),
+      decoration: BoxDecoration(
+        color: Colors.grey[200],
+        borderRadius: BorderRadius.circular(15),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(
+            _getIconForAttribute(entry.key),
+            size: screenWidth * 0.04,
+            color: Colors.black87,
           ),
-        ),
+          SizedBox(width: screenWidth * 0.02),
+          Text(
+            '${entry.value}',
+            style: GoogleFonts.poppins(
+              fontSize: screenWidth * 0.035,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+        ],
       ),
     );
+  }
+
+  String _getPropertyTypeLabel(PropertyType type) {
+    switch (type) {
+      case PropertyType.house:
+        return 'À Venda';
+      case PropertyType.rent:
+        return 'Arrenda-se';
+      case PropertyType.land:
+        return 'Terreno';
+    }
   }
 }
