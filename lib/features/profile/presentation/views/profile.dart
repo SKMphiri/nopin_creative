@@ -150,7 +150,7 @@ class _ProfileViewState extends State<ProfileView>
               begin: Alignment.topCenter,
               end: Alignment.bottomCenter,
               colors: [
-                accentColor.withValues(alpha:0.2),
+                accentColor.withOpacity(0.2),
                 Colors.white,
               ],
             ),
@@ -169,7 +169,7 @@ class _ProfileViewState extends State<ProfileView>
               left: 8,
               right: 8,
             ),
-            color: Colors.amber.shade100.withValues(alpha:0.7),
+            color: Colors.amber.shade100.withOpacity(0.7),
             child: InkWell(
               onTap: () {
                 Navigator.of(context).push(MaterialPageRoute(
@@ -224,12 +224,12 @@ class _ProfileViewState extends State<ProfileView>
                     height: isTablet ? screenWidth * 0.15 : screenWidth * 0.22,
                     width: isTablet ? screenWidth * 0.15 : screenWidth * 0.22,
                     decoration: BoxDecoration(
-                      color: accentColor.withValues(alpha:0.7),
+                      color: accentColor.withOpacity(0.7),
                       shape: BoxShape.circle,
                       border: Border.all(color: Colors.white, width: 4),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withValues(alpha:0.1),
+                          color: Colors.black.withOpacity(0.1),
                           blurRadius: 10,
                           spreadRadius: 2,
                         ),
@@ -256,7 +256,7 @@ class _ProfileViewState extends State<ProfileView>
                         shape: BoxShape.circle,
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.black.withValues(alpha:0.1),
+                            color: Colors.black.withOpacity(0.1),
                             blurRadius: 4,
                             spreadRadius: 1,
                           ),
@@ -323,7 +323,7 @@ class _ProfileViewState extends State<ProfileView>
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha:0.03),
+            color: Colors.black.withOpacity(0.03),
             blurRadius: 8,
             spreadRadius: 1,
           ),
@@ -371,7 +371,7 @@ class _ProfileViewState extends State<ProfileView>
         Container(
           padding: const EdgeInsets.all(10),
           decoration: BoxDecoration(
-            color: color.withValues(alpha:0.1),
+            color: color.withOpacity(0.1),
             shape: BoxShape.circle,
           ),
           child: Icon(
@@ -416,14 +416,14 @@ class _ProfileViewState extends State<ProfileView>
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           colors: [
-            accentColor.withValues(alpha:0.8),
+            accentColor.withOpacity(0.8),
             accentColor,
           ],
         ),
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: accentColor.withValues(alpha:0.3),
+            color: accentColor.withOpacity(0.3),
             blurRadius: 8,
             spreadRadius: 1,
             offset: const Offset(0, 4),
@@ -511,7 +511,7 @@ class _ProfileViewState extends State<ProfileView>
     required bool isTablet,
   }) {
     return Material(
-      color: Colors.white.withValues(alpha:0.2),
+      color: Colors.white.withOpacity(0.2),
       borderRadius: BorderRadius.circular(12),
       child: InkWell(
         borderRadius: BorderRadius.circular(12),
@@ -617,7 +617,7 @@ class _ProfileViewState extends State<ProfileView>
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha:0.03),
+            color: Colors.black.withOpacity(0.03),
             blurRadius: 6,
             spreadRadius: 1,
           ),
@@ -675,7 +675,7 @@ class _ProfileViewState extends State<ProfileView>
                   padding:
                       const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                   decoration: BoxDecoration(
-                    color: accentColor.withValues(alpha:0.1),
+                    color: accentColor.withOpacity(0.1),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: RichText(
@@ -724,7 +724,7 @@ class _ProfileViewState extends State<ProfileView>
               borderRadius: BorderRadius.circular(16),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withValues(alpha:0.03),
+                  color: Colors.black.withOpacity(0.03),
                   blurRadius: 6,
                   spreadRadius: 1,
                 ),
@@ -805,68 +805,84 @@ class _ProfileViewState extends State<ProfileView>
   // Properties list tab
   Widget _buildPropertiesList(
       BuildContext context, Color accentColor, bool isTablet) {
-    final screenHeight = MediaQuery.of(context).size.height;
-
-    return ListView.builder(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-      physics: const BouncingScrollPhysics(),
-      itemCount: 3, // Show a few sample items
-      itemBuilder: (context, index) {
-        return _buildPropertyCard(
-          isTablet: isTablet,
-          accentColor: accentColor,
-          title: "Casa com 3 quartos em Matola",
-          price: "MZN 4,800,000",
-          status: index % 2 == 0 ? "Activo" : "Pendente",
-          views: "${200 + index * 50}",
-          date: "12/06/2023",
-          isActive: index % 2 == 0,
-          screenHeight: screenHeight,
-        );
-      },
+    return SafeArea(
+      child: ListView.builder(
+        key: const PageStorageKey('properties_list'),
+        padding: const EdgeInsets.all(16),
+        physics: const BouncingScrollPhysics(),
+        itemCount: 3, // Show a few sample items
+        itemBuilder: (context, index) {
+          return PropertyCard(
+            title: "Casa com 3 quartos em Matola",
+            price: "MZN 4,800,000",
+            status: index % 2 == 0 ? "Activo" : "Pendente",
+            views: "${200 + index * 50}",
+            date: "12/06/2023",
+            isActive: index % 2 == 0,
+            isTablet: isTablet,
+            accentColor: accentColor,
+          );
+        },
+      ),
     );
   }
 
   // Saved properties list tab
   Widget _buildSavedPropertiesList(
       BuildContext context, Color accentColor, bool isTablet) {
-    final screenHeight = MediaQuery.of(context).size.height;
-
-    return ListView.builder(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-      physics: const BouncingScrollPhysics(),
-      itemCount: 2, // Show a few sample items
-      itemBuilder: (context, index) {
-        return _buildPropertyCard(
-          isTablet: isTablet,
-          accentColor: accentColor,
-          title: "Apartamento T2 na Polana",
-          price: "MZN 6,500,000",
-          status: "Salvo",
-          views: "-",
-          date: "05/06/2023",
-          isActive: true,
-          isSaved: true,
-          screenHeight: screenHeight,
-        );
-      },
+    return SafeArea(
+      child: ListView.builder(
+        key: const PageStorageKey('saved_properties_list'),
+        padding: const EdgeInsets.all(16),
+        physics: const BouncingScrollPhysics(),
+        itemCount: 2, // Show a few sample items
+        itemBuilder: (context, index) {
+          return PropertyCard(
+            title: "Apartamento T2 na Polana",
+            price: "MZN 6,500,000",
+            status: "Salvo",
+            views: "-",
+            date: "05/06/2023",
+            isActive: true,
+            isSaved: true,
+            isTablet: isTablet,
+            accentColor: accentColor,
+          );
+        },
+      ),
     );
   }
+}
 
-  // Property card for list items
-  Widget _buildPropertyCard({
-    required bool isTablet,
-    required Color accentColor,
-    required String title,
-    required String price,
-    required String status,
-    required String views,
-    required String date,
-    required bool isActive,
-    required double screenHeight,
-    bool isSaved = false,
-  }) {
+// Extracted property card as a separate widget for cleaner implementation
+class PropertyCard extends StatelessWidget {
+  final String title;
+  final String price;
+  final String status;
+  final String views;
+  final String date;
+  final bool isActive;
+  final bool isTablet;
+  final Color accentColor;
+  final bool isSaved;
+
+  const PropertyCard({
+    Key? key,
+    required this.title,
+    required this.price,
+    required this.status,
+    required this.views,
+    required this.date,
+    required this.isActive,
+    required this.isTablet,
+    required this.accentColor,
+    this.isSaved = false,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
+    final screenHeight = MediaQuery.of(context).size.height;
     final imageHeight = isTablet ? 160.0 : (screenHeight < 700 ? 110.0 : 140.0);
 
     // Calculate button sizes based on screen width
@@ -880,13 +896,14 @@ class _ProfileViewState extends State<ProfileView>
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha:0.03),
+            color: Colors.black.withOpacity(0.03),
             blurRadius: 6,
             spreadRadius: 1,
           ),
         ],
       ),
       child: Column(
+        mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Property image with status
@@ -910,10 +927,10 @@ class _ProfileViewState extends State<ProfileView>
                       const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                   decoration: BoxDecoration(
                     color: isActive
-                        ? Colors.green.withValues(alpha:0.8)
+                        ? Colors.green.withOpacity(0.8)
                         : isSaved
-                            ? accentColor.withValues(alpha:0.8)
-                            : Colors.amber.withValues(alpha:0.8),
+                            ? accentColor.withOpacity(0.8)
+                            : Colors.amber.withOpacity(0.8),
                     borderRadius: BorderRadius.circular(20),
                   ),
                   child: Text(
@@ -1083,6 +1100,7 @@ class _ProfileViewState extends State<ProfileView>
     required bool isTablet,
   }) {
     return Row(
+      mainAxisSize: MainAxisSize.min,
       children: [
         Icon(
           icon,
@@ -1090,29 +1108,25 @@ class _ProfileViewState extends State<ProfileView>
           color: Colors.grey.shade600,
         ),
         const SizedBox(width: 6),
-        Flexible(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                value,
-                style: GoogleFonts.poppins(
-                  fontSize: isTablet ? 14 : 12,
-                  fontWeight: FontWeight.w600,
-                  color: Colors.black87,
-                ),
-                overflow: TextOverflow.ellipsis,
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              value,
+              style: GoogleFonts.poppins(
+                fontSize: isTablet ? 14 : 12,
+                fontWeight: FontWeight.w600,
+                color: Colors.black87,
               ),
-              Text(
-                label,
-                style: GoogleFonts.poppins(
-                  fontSize: isTablet ? 12 : 10,
-                  color: Colors.grey.shade600,
-                ),
-                overflow: TextOverflow.ellipsis,
+            ),
+            Text(
+              label,
+              style: GoogleFonts.poppins(
+                fontSize: isTablet ? 12 : 10,
+                color: Colors.grey.shade600,
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ],
     );
@@ -1126,7 +1140,7 @@ class _ProfileViewState extends State<ProfileView>
     required bool isTablet,
   }) {
     return Material(
-      color: color.withValues(alpha:0.1),
+      color: color.withOpacity(0.1),
       borderRadius: BorderRadius.circular(8),
       child: InkWell(
         borderRadius: BorderRadius.circular(8),
@@ -1136,6 +1150,7 @@ class _ProfileViewState extends State<ProfileView>
         child: Container(
           padding: const EdgeInsets.symmetric(vertical: 8),
           child: Column(
+            mainAxisSize: MainAxisSize.min,
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Icon(
@@ -1151,7 +1166,6 @@ class _ProfileViewState extends State<ProfileView>
                   fontWeight: FontWeight.w500,
                   color: color,
                 ),
-                overflow: TextOverflow.ellipsis,
                 textAlign: TextAlign.center,
               ),
             ],
