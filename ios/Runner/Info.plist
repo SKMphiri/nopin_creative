@@ -47,5 +47,11 @@
 	<true/>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
+	<key>NSLocationWhenInUseUsageDescription</key>
+    <string>We need access to your location to show properties near you on the map and display your current position.</string>
+    <key>NSLocationAlwaysAndForeverUsageDescription</key>
+    <string>Optional: Description if you need always access.</string>
+    <key>NSLocationAlwaysUsageDescription</key>
+    <string>Optional: Description if you need always access (older iOS).</string>
 </dict>
 </plist>

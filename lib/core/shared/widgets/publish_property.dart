@@ -119,8 +119,7 @@ class _PublishPropertyState extends State<PublishProperty> {
             ],
           ),
           // Scrollable Content
-          SizedBox(
-            height: screenHeight * 0.84 - bottomPadding,
+          Expanded(
             child: Form(
               key: _formKey,
               child: SingleChildScrollView(
