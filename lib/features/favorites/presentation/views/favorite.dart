@@ -721,16 +721,20 @@ class _FavoriteViewState extends State<FavoriteView> {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => OfferDetails(
-          title: "Casa com 3 quartos em Matola",
-          location: "Matola, Maputo",
-          price: 4800000,
-          assetImagePath: AppImages.beachHouse,
-          bedrooms: 3,
-          bathrooms: 2,
-          parking: true,
-          description:
-              "Linda casa moderna com 3 quartos, 2 banheiros, cozinha equipada e jardim amplo. Localizada em área tranquila da Matola, próxima a escolas e comércio.",
+        builder: (context) => Scaffold(
+          body: SafeArea(
+            child: OfferDetails(
+              title: "Casa com 3 quartos em Matola",
+              location: "Matola, Maputo",
+              price: 4800000,
+              assetImagePath: AppImages.beachHouse,
+              bedrooms: 3,
+              bathrooms: 2,
+              parking: true,
+              description:
+                  "Linda casa moderna com 3 quartos, 2 banheiros, cozinha equipada e jardim amplo. Localizada em área tranquila da Matola, próxima a escolas e comércio.",
+            ),
+          ),
         ),
       ),
     );
