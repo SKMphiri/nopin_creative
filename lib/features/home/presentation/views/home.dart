@@ -62,8 +62,8 @@ class _HomeViewState extends State<HomeView>
       floatingActionButton: _buildFloatingActionButton(accentColor, isTablet),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       bottomNavigationBar: BottomAppBar(
-        height: bottomNavHeight + bottomPadding + 15,
-        elevation: 8,
+        height: bottomNavHeight + 0,
+        elevation: 16,
         shadowColor: Colors.black.withOpacity(0.05),
         padding: EdgeInsets.zero,
         notchMargin: 8,
